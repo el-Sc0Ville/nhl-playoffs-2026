@@ -86,11 +86,11 @@
     </div>
 
     <div id="info-view" class="info-content">
-        <h2>Welcome to the Pool 🧊</h2>
-        <p>The quest for the hardest trophy in sports begins now. We are doing this round-by-round. Survive and advance!</p>
+        <h2>Let's Fucking Gooo 🧊</h2>
+        <p>The quest for the hardest trophy in sports begins now, baby. We are doing this round-by-round.</p>
         
         <h3>How It Works</h3>
-        <p>Before the puck drops for Game 1, you must select the outright winner for every series, AND predict exactly how many games the series will go (4, 5, 6, or 7).</p>
+        <p>Before the puck drops for Game 1 on Saturday, you must select the outright winner for every Round 1 series, AND predict exactly how many games the series will go (4, 5, 6, or 7).</p>
 
         <h3>The Scoring System 📈</h3>
         <ul style="padding-left: 20px; margin-bottom: 20px;">
@@ -172,15 +172,15 @@
                 });
             </script>
 
-            <button type="submit">Lock In My Bracket 🔒</button>
+            <button type="submit">Lock In My Picks 🔒</button>
         </form>
         <div class="loading">Submitting your picks to the ice... 🧊</div>
     </div>
 
-    <div class="success-message" id="success-msg">
+<div class="success-message" id="success-msg">
         <h2>🚨 ET LE BUUUT! 🚨</h2>
         <p>Your Round 1 picks are officially locked in.</p>
-        <button onclick="loadLeaderboard()" style="padding: 10px 20px; margin-top: 20px; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer;">View Leaderboard</button>
+        <button onclick="document.getElementById('success-msg').style.display='none'; loadLeaderboard();" style="padding: 10px 20px; margin-top: 20px; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer;">View Leaderboard</button>
     </div>
 
 </div>
@@ -327,8 +327,8 @@
             .then(response => {
                 loading.style.display = 'none';
                 formContainer.style.display = 'none';
-                document.querySelector('.nav-buttons').style.display = 'none'; // Hide tabs on success
                 successMsg.style.display = 'block';
+                form.reset(); // Clears the form so the next person has a blank slate!
             })
             .catch(error => {
                 submitButton.disabled = false;
