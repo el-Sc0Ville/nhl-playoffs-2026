@@ -12,6 +12,21 @@
         .header p { margin: 5px 0 0; opacity: 0.8; font-size: 1rem; }
         .container { max-width: 650px; margin: 0 auto; padding: 20px; }
         
+        /* Navigation Tabs */
+        .nav-buttons { display: flex; gap: 8px; margin-bottom: 25px; overflow-x: auto; padding-bottom: 5px; }
+        .nav-btn { background: #ddd; color: #333; border: none; padding: 12px 15px; border-radius: 8px; font-weight: bold; flex: 1; cursor: pointer; transition: 0.2s; white-space: nowrap; font-size: 0.9rem; }
+        .nav-btn.active { background: var(--secondary); color: white; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+
+        /* Sections */
+        #leaderboard-view, #info-view { display: none; }
+        
+        /* Info Tab Styles */
+        .info-content { background: var(--card); border-radius: 12px; padding: 25px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); line-height: 1.6; }
+        .info-content h2 { color: var(--primary); margin-top: 0; border-bottom: 2px solid #eee; padding-bottom: 10px;}
+        .info-content h3 { color: var(--secondary); margin-top: 20px; margin-bottom: 10px;}
+        .point-badge { background: var(--secondary); color: white; padding: 3px 8px; border-radius: 4px; font-weight: bold; }
+        
+        /* Form Styles */
         .info-card { background: var(--card); border-radius: 12px; padding: 20px; margin-bottom: 25px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border-top: 5px solid var(--accent); }
         .input-group { margin-bottom: 15px; }
         .input-group label { font-weight: bold; display: block; margin-bottom: 8px; font-size: 0.95rem; }
@@ -34,7 +49,21 @@
         
         button[type="submit"] { background-color: var(--accent); color: white; border: none; padding: 18px 30px; font-size: 1.2rem; font-weight: bold; border-radius: 50px; cursor: pointer; width: 100%; box-shadow: 0 4px 15px rgba(200, 16, 46, 0.3); transition: transform 0.1s; text-transform: uppercase; letter-spacing: 1px; }
         button[type="submit"]:active { transform: scale(0.98); }
-        button[type="submit"]:disabled { background-color: #ccc; box-shadow: none; cursor: not-allowed; }
+        
+        /* Leaderboard / Entries Styles */
+        .leaderboard-container { background: var(--card); border-radius: 12px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .lb-header { display: flex; background: var(--primary); color: white; padding: 15px; font-weight: bold; }
+        .lb-row { display: flex; padding: 15px; border-bottom: 1px solid #eee; cursor: pointer; transition: 0.2s; align-items: center; }
+        .lb-row:hover { background-color: #f9f9f9; }
+        .lb-rank { width: 15%; font-weight: bold; color: #888; }
+        .lb-name { width: 65%; font-weight: 600; font-size: 1.1rem; }
+        .lb-score { width: 20%; text-align: right; font-weight: bold; color: var(--secondary); font-size: 1.2rem; }
+        
+        /* Expandable Picks Grid */
+        .lb-details { display: none; padding: 15px; background-color: #f8f9fa; border-bottom: 2px solid #ddd; }
+        .picks-grid-summary { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 0.85rem; }
+        .pick-item { background: white; padding: 8px; border-radius: 6px; border: 1px solid #eee; text-align: center; }
+        .pick-item strong { display: block; color: var(--primary); margin-bottom: 2px; }
         
         .loading { display: none; text-align: center; margin-top: 20px; font-weight: bold; color: var(--secondary); }
         .success-message { display: none; text-align: center; padding: 40px 20px; }
@@ -48,228 +77,213 @@
     <p>Round 1 • Pick 'Em Pool 🏒</p>
 </div>
 
-<div class="container" id="form-container">
-    <form name="submit-to-google-sheet" novalidate>
+<div class="container" id="main-container">
+    
+    <div class="nav-buttons">
+        <button class="nav-btn active" onclick="switchTab('picks')" id="tab-picks">Make Picks</button>
+        <button class="nav-btn" onclick="loadLeaderboard()" id="tab-board">Leaderboard & Entries</button>
+        <button class="nav-btn" onclick="switchTab('info')" id="tab-info">Rules & Info</button>
+    </div>
+
+    <div id="info-view" class="info-content">
+        <h2>Welcome to the Pool 🧊</h2>
+        <p>The quest for the hardest trophy in sports begins now. We are doing this round-by-round. Survive and advance!</p>
         
-        <div class="info-card">
-            <div class="input-group">
-                <label>Email Address (Required)</label>
-                <input type="email" name="Email" placeholder="e.g. gretzky99@example.com" required>
+        <h3>How It Works</h3>
+        <p>Before the puck drops for Game 1, you must select the outright winner for every series, AND predict exactly how many games the series will go (4, 5, 6, or 7).</p>
+
+        <h3>The Scoring System 📈</h3>
+        <ul style="padding-left: 20px; margin-bottom: 20px;">
+            <li style="margin-bottom: 10px;"><span class="point-badge">2 Points</span> for correctly picking the Series Winner.</li>
+            <li><span class="point-badge">1 Bonus Point</span> for correctly picking the exact number of games the series lasts.</li>
+        </ul>
+        <p><em>Maximum points per matchup = 3. Total possible points for Round 1 = 24.</em></p>
+        
+        <h3>The Long Game</h3>
+        <p>We will re-rack and submit new picks before Round 2, the Conference Finals, and the Stanley Cup Final. Your points will carry over and tally up to crown the ultimate champion at the end of the playoffs.</p>
+    </div>
+
+    <div id="leaderboard-view">
+        <div class="leaderboard-container">
+            <div class="lb-header">
+                <div class="lb-rank">#</div>
+                <div class="lb-name">Player</div>
+                <div class="lb-score">Pts</div>
             </div>
-            <div class="input-group">
-                <label>Alias / Nickname (For the Leaderboard)</label>
-                <input type="text" name="Alias" placeholder="e.g. The Great One" required>
+            <div id="leaderboard-body">
+                <div style="padding: 20px; text-align: center;">Fetching data from the ice... 🏒</div>
             </div>
         </div>
+        <p style="text-align: center; font-size: 0.85rem; color: #888; margin-top: 15px;">Tap any player to view their bracket!</p>
+        <button onclick="loadLeaderboard()" style="width:100%; padding:10px; background:#ddd; border:none; border-radius:8px; margin-top:10px; font-weight:bold; cursor:pointer;">🔄 Refresh Standings</button>
+    </div>
 
-        <div class="matchup-card">
-            <div class="matchup-header">
-                <h3>Hurricanes vs. Senators</h3>
-                <span class="conference-badge">East</span>
-            </div>
-            <div class="pick-section">
-                <h4>Series Winner:</h4>
-                <div class="options-grid">
-                    <label><input type="radio" name="M1_Winner" value="CAR"><div class="radio-label">Carolina</div></label>
-                    <label><input type="radio" name="M1_Winner" value="OTT"><div class="radio-label">Ottawa</div></label>
+    <div id="picks-view">
+        <form name="submit-to-google-sheet" novalidate>
+            <div class="info-card">
+                <div class="input-group">
+                    <label>Email Address (Required)</label>
+                    <input type="email" name="Email" placeholder="e.g. gretzky99@example.com" required>
+                </div>
+                <div class="input-group">
+                    <label>Alias / Nickname (For the Leaderboard)</label>
+                    <input type="text" name="Alias" placeholder="e.g. The Great One" required>
                 </div>
             </div>
-            <div class="pick-section">
-                <h4>Total Games:</h4>
-                <div class="games-grid">
-                    <label><input type="radio" name="M1_Games" value="4"><div class="radio-label">4</div></label>
-                    <label><input type="radio" name="M1_Games" value="5"><div class="radio-label">5</div></label>
-                    <label><input type="radio" name="M1_Games" value="6"><div class="radio-label">6</div></label>
-                    <label><input type="radio" name="M1_Games" value="7"><div class="radio-label">7</div></label>
-                </div>
-            </div>
-        </div>
 
-        <div class="matchup-card">
-            <div class="matchup-header">
-                <h3>Lightning vs. Canadiens</h3>
-                <span class="conference-badge">East</span>
-            </div>
-            <div class="pick-section">
-                <h4>Series Winner:</h4>
-                <div class="options-grid">
-                    <label><input type="radio" name="M2_Winner" value="TB"><div class="radio-label">Tampa Bay</div></label>
-                    <label><input type="radio" name="M2_Winner" value="MTL"><div class="radio-label">Montreal</div></label>
-                </div>
-            </div>
-            <div class="pick-section">
-                <h4>Total Games:</h4>
-                <div class="games-grid">
-                    <label><input type="radio" name="M2_Games" value="4"><div class="radio-label">4</div></label>
-                    <label><input type="radio" name="M2_Games" value="5"><div class="radio-label">5</div></label>
-                    <label><input type="radio" name="M2_Games" value="6"><div class="radio-label">6</div></label>
-                    <label><input type="radio" name="M2_Games" value="7"><div class="radio-label">7</div></label>
-                </div>
-            </div>
-        </div>
+            <script>
+                // Generate the 8 matchups dynamically to save HTML space
+                const matchups = [
+                    { id: 1, team1: "Carolina 🌪️", val1: "CAR", team2: "Ottawa 💂", val2: "OTT", conf: "East" },
+                    { id: 2, team1: "Tampa Bay ⚡", val1: "TB", team2: "Montreal 🏆", val2: "MTL", conf: "East" },
+                    { id: 3, team1: "Buffalo 🦬", val1: "BUF", team2: "Boston 🐻", val2: "BOS", conf: "East" },
+                    { id: 4, team1: "Pittsburgh 🐧", val1: "PIT", team2: "Philadelphia 🪽", val2: "PHI", conf: "East" },
+                    { id: 5, team1: "Colorado 🏔️", val1: "COL", team2: "Los Angeles 👑", val2: "LA", conf: "West" },
+                    { id: 6, team1: "Dallas ⭐", val1: "DAL", team2: "Minnesota 🌲", val2: "MIN", conf: "West" },
+                    { id: 7, team1: "Vegas 🎰", val1: "VGK", team2: "Utah 🦣", val2: "UTA", conf: "West" },
+                    { id: 8, team1: "Edmonton 🛢️", val1: "EDM", team2: "Anaheim 🦆", val2: "ANA", conf: "West" }
+                ];
 
-        <div class="matchup-card">
-            <div class="matchup-header">
-                <h3>Sabres vs. Bruins</h3>
-                <span class="conference-badge">East</span>
-            </div>
-            <div class="pick-section">
-                <h4>Series Winner:</h4>
-                <div class="options-grid">
-                    <label><input type="radio" name="M3_Winner" value="BUF"><div class="radio-label">Buffalo</div></label>
-                    <label><input type="radio" name="M3_Winner" value="BOS"><div class="radio-label">Boston</div></label>
-                </div>
-            </div>
-            <div class="pick-section">
-                <h4>Total Games:</h4>
-                <div class="games-grid">
-                    <label><input type="radio" name="M3_Games" value="4"><div class="radio-label">4</div></label>
-                    <label><input type="radio" name="M3_Games" value="5"><div class="radio-label">5</div></label>
-                    <label><input type="radio" name="M3_Games" value="6"><div class="radio-label">6</div></label>
-                    <label><input type="radio" name="M3_Games" value="7"><div class="radio-label">7</div></label>
-                </div>
-            </div>
-        </div>
+                matchups.forEach(m => {
+                    document.write(`
+                        <div class="matchup-card">
+                            <div class="matchup-header">
+                                <h3>${m.team1} vs. ${m.team2}</h3>
+                                <span class="conference-badge">${m.conf}</span>
+                            </div>
+                            <div class="pick-section">
+                                <h4>Series Winner:</h4>
+                                <div class="options-grid">
+                                    <label><input type="radio" name="M${m.id}_Winner" value="${m.val1}"><div class="radio-label">${m.team1}</div></label>
+                                    <label><input type="radio" name="M${m.id}_Winner" value="${m.val2}"><div class="radio-label">${m.team2}</div></label>
+                                </div>
+                            </div>
+                            <div class="pick-section">
+                                <h4>Total Games:</h4>
+                                <div class="games-grid">
+                                    <label><input type="radio" name="M${m.id}_Games" value="4"><div class="radio-label">4</div></label>
+                                    <label><input type="radio" name="M${m.id}_Games" value="5"><div class="radio-label">5</div></label>
+                                    <label><input type="radio" name="M${m.id}_Games" value="6"><div class="radio-label">6</div></label>
+                                    <label><input type="radio" name="M${m.id}_Games" value="7"><div class="radio-label">7</div></label>
+                                </div>
+                            </div>
+                        </div>
+                    `);
+                });
+            </script>
 
-        <div class="matchup-card">
-            <div class="matchup-header">
-                <h3>Penguins vs. Flyers</h3>
-                <span class="conference-badge">East</span>
-            </div>
-            <div class="pick-section">
-                <h4>Series Winner:</h4>
-                <div class="options-grid">
-                    <label><input type="radio" name="M4_Winner" value="PIT"><div class="radio-label">Pittsburgh</div></label>
-                    <label><input type="radio" name="M4_Winner" value="PHI"><div class="radio-label">Philadelphia</div></label>
-                </div>
-            </div>
-            <div class="pick-section">
-                <h4>Total Games:</h4>
-                <div class="games-grid">
-                    <label><input type="radio" name="M4_Games" value="4"><div class="radio-label">4</div></label>
-                    <label><input type="radio" name="M4_Games" value="5"><div class="radio-label">5</div></label>
-                    <label><input type="radio" name="M4_Games" value="6"><div class="radio-label">6</div></label>
-                    <label><input type="radio" name="M4_Games" value="7"><div class="radio-label">7</div></label>
-                </div>
-            </div>
-        </div>
+            <button type="submit">Lock In My Bracket 🔒</button>
+        </form>
+        <div class="loading">Submitting your picks to the ice... 🧊</div>
+    </div>
 
-        <div class="matchup-card">
-            <div class="matchup-header">
-                <h3>Avalanche vs. Kings</h3>
-                <span class="conference-badge">West</span>
-            </div>
-            <div class="pick-section">
-                <h4>Series Winner:</h4>
-                <div class="options-grid">
-                    <label><input type="radio" name="M5_Winner" value="COL"><div class="radio-label">Colorado</div></label>
-                    <label><input type="radio" name="M5_Winner" value="LA"><div class="radio-label">Los Angeles</div></label>
-                </div>
-            </div>
-            <div class="pick-section">
-                <h4>Total Games:</h4>
-                <div class="games-grid">
-                    <label><input type="radio" name="M5_Games" value="4"><div class="radio-label">4</div></label>
-                    <label><input type="radio" name="M5_Games" value="5"><div class="radio-label">5</div></label>
-                    <label><input type="radio" name="M5_Games" value="6"><div class="radio-label">6</div></label>
-                    <label><input type="radio" name="M5_Games" value="7"><div class="radio-label">7</div></label>
-                </div>
-            </div>
-        </div>
+    <div class="success-message" id="success-msg">
+        <h2>🚨 ET LE BUUUT! 🚨</h2>
+        <p>Your Round 1 picks are officially locked in.</p>
+        <button onclick="loadLeaderboard()" style="padding: 10px 20px; margin-top: 20px; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer;">View Leaderboard</button>
+    </div>
 
-        <div class="matchup-card">
-            <div class="matchup-header">
-                <h3>Stars vs. Wild</h3>
-                <span class="conference-badge">West</span>
-            </div>
-            <div class="pick-section">
-                <h4>Series Winner:</h4>
-                <div class="options-grid">
-                    <label><input type="radio" name="M6_Winner" value="DAL"><div class="radio-label">Dallas</div></label>
-                    <label><input type="radio" name="M6_Winner" value="MIN"><div class="radio-label">Minnesota</div></label>
-                </div>
-            </div>
-            <div class="pick-section">
-                <h4>Total Games:</h4>
-                <div class="games-grid">
-                    <label><input type="radio" name="M6_Games" value="4"><div class="radio-label">4</div></label>
-                    <label><input type="radio" name="M6_Games" value="5"><div class="radio-label">5</div></label>
-                    <label><input type="radio" name="M6_Games" value="6"><div class="radio-label">6</div></label>
-                    <label><input type="radio" name="M6_Games" value="7"><div class="radio-label">7</div></label>
-                </div>
-            </div>
-        </div>
-
-        <div class="matchup-card">
-            <div class="matchup-header">
-                <h3>Golden Knights vs. Mammoth</h3>
-                <span class="conference-badge">West</span>
-            </div>
-            <div class="pick-section">
-                <h4>Series Winner:</h4>
-                <div class="options-grid">
-                    <label><input type="radio" name="M7_Winner" value="VGK"><div class="radio-label">Vegas</div></label>
-                    <label><input type="radio" name="M7_Winner" value="UTA"><div class="radio-label">Utah</div></label>
-                </div>
-            </div>
-            <div class="pick-section">
-                <h4>Total Games:</h4>
-                <div class="games-grid">
-                    <label><input type="radio" name="M7_Games" value="4"><div class="radio-label">4</div></label>
-                    <label><input type="radio" name="M7_Games" value="5"><div class="radio-label">5</div></label>
-                    <label><input type="radio" name="M7_Games" value="6"><div class="radio-label">6</div></label>
-                    <label><input type="radio" name="M7_Games" value="7"><div class="radio-label">7</div></label>
-                </div>
-            </div>
-        </div>
-
-        <div class="matchup-card">
-            <div class="matchup-header">
-                <h3>Oilers vs. Ducks</h3>
-                <span class="conference-badge">West</span>
-            </div>
-            <div class="pick-section">
-                <h4>Series Winner:</h4>
-                <div class="options-grid">
-                    <label><input type="radio" name="M8_Winner" value="EDM"><div class="radio-label">Edmonton</div></label>
-                    <label><input type="radio" name="M8_Winner" value="ANA"><div class="radio-label">Anaheim</div></label>
-                </div>
-            </div>
-            <div class="pick-section">
-                <h4>Total Games:</h4>
-                <div class="games-grid">
-                    <label><input type="radio" name="M8_Games" value="4"><div class="radio-label">4</div></label>
-                    <label><input type="radio" name="M8_Games" value="5"><div class="radio-label">5</div></label>
-                    <label><input type="radio" name="M8_Games" value="6"><div class="radio-label">6</div></label>
-                    <label><input type="radio" name="M8_Games" value="7"><div class="radio-label">7</div></label>
-                </div>
-            </div>
-        </div>
-
-        <button type="submit">Lock In My Bracket 🔒</button>
-    </form>
-    <div class="loading">Submitting your picks to the ice... 🧊</div>
-</div>
-
-<div class="success-message" id="success-msg">
-    <h2>🚨 HE SCORES! 🚨</h2>
-    <p>Your Round 1 picks are officially locked in.</p>
-    <p>Good luck!</p>
 </div>
 
 <script>
-    // ⬇️ PASTE YOUR GOOGLE SCRIPT URL BETWEEN THE QUOTES BELOW ⬇️
+    // ⬇️ PASTE YOUR GOOGLE SCRIPT URL BELOW ⬇️
     const scriptURL = 'https://script.google.com/macros/s/AKfycbyXU0Vn2XDfP_lweHRgsx_H-UtjfMArXVwZA_0XHx3RtiRmdAGL5C0LIMf1X8KPkMrF/exec';
     
+    // UI Tab Navigation
+    function switchTab(tabId) {
+        document.getElementById('picks-view').style.display = tabId === 'picks' ? 'block' : 'none';
+        document.getElementById('leaderboard-view').style.display = tabId === 'board' ? 'block' : 'none';
+        document.getElementById('info-view').style.display = tabId === 'info' ? 'block' : 'none';
+        
+        document.getElementById('tab-picks').className = tabId === 'picks' ? 'nav-btn active' : 'nav-btn';
+        document.getElementById('tab-board').className = tabId === 'board' ? 'nav-btn active' : 'nav-btn';
+        document.getElementById('tab-info').className = tabId === 'info' ? 'nav-btn active' : 'nav-btn';
+    }
+
+    // Toggle Player Details Accordion
+    function toggleDetails(index) {
+        const detailsDiv = document.getElementById('details-' + index);
+        if (detailsDiv.style.display === 'block') {
+            detailsDiv.style.display = 'none';
+        } else {
+            // Close all others first
+            document.querySelectorAll('.lb-details').forEach(el => el.style.display = 'none');
+            detailsDiv.style.display = 'block';
+        }
+    }
+
+    // Load Leaderboard Data
+    function loadLeaderboard() {
+        switchTab('board');
+        const lbBody = document.getElementById('leaderboard-body');
+        lbBody.innerHTML = '<div style="padding: 20px; text-align: center;">Fetching data from the ice... 🏒</div>';
+
+        fetch(scriptURL)
+            .then(response => response.json())
+            .then(data => {
+                // data[0] is headers, data[1] is Answer Key. Players start at data[2]
+                let players = data.slice(2).map(row => {
+                    return {
+                        alias: row[2], // Column C
+                        score: row[19] || 0, // Column T (Index 19)
+                        picks: [
+                            { match: "CAR/OTT", winner: row[3], games: row[4] },
+                            { match: "TB/MTL", winner: row[5], games: row[6] },
+                            { match: "BUF/BOS", winner: row[7], games: row[8] },
+                            { match: "PIT/PHI", winner: row[9], games: row[10] },
+                            { match: "COL/LA", winner: row[11], games: row[12] },
+                            { match: "DAL/MIN", winner: row[13], games: row[14] },
+                            { match: "VGK/UTA", winner: row[15], games: row[16] },
+                            { match: "EDM/ANA", winner: row[17], games: row[18] }
+                        ]
+                    };
+                });
+
+                // Filter out blanks and sort
+                players = players.filter(p => p.alias && p.alias !== "");
+                players.sort((a, b) => b.score - a.score);
+
+                lbBody.innerHTML = '';
+                
+                players.forEach((player, index) => {
+                    // Generate the mini grid of picks for this player
+                    let picksHtml = '';
+                    player.picks.forEach(p => {
+                        let text = p.winner ? `${p.winner} in ${p.games}` : "No Pick";
+                        picksHtml += `<div class="pick-item"><strong>${p.match}</strong>${text}</div>`;
+                    });
+
+                    // Add Main Row + Hidden Details Row
+                    lbBody.innerHTML += `
+                        <div class="lb-row" onclick="toggleDetails(${index})">
+                            <div class="lb-rank">${index + 1}</div>
+                            <div class="lb-name">${player.alias}</div>
+                            <div class="lb-score">${player.score}</div>
+                        </div>
+                        <div class="lb-details" id="details-${index}">
+                            <div class="picks-grid-summary">
+                                ${picksHtml}
+                            </div>
+                        </div>
+                    `;
+                });
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                lbBody.innerHTML = '<div style="padding:20px; text-align:center; color:red;">Failed to load standings. Try again!</div>';
+            });
+    }
+
+    // Form Submission & Validation
     const form = document.forms['submit-to-google-sheet'];
     const loading = document.querySelector('.loading');
     const successMsg = document.querySelector('.success-message');
-    const formContainer = document.getElementById('form-container');
+    const formContainer = document.getElementById('picks-view');
 
     form.addEventListener('submit', e => {
         e.preventDefault();
 
-        // Custom Validation to ensure no blanks
+        // Custom Validation
         let firstInvalid = null;
         const inputsToCheck = ['Email', 'Alias'];
         
@@ -283,17 +297,17 @@
             }
         });
 
-        // Check all 8 matchups (Winner and Games)
+        // Check all 8 matchups
         for (let i = 1; i <= 8; i++) {
             const winnerGroup = form.elements['M' + i + '_Winner'];
             const gamesGroup = form.elements['M' + i + '_Games'];
-            const card = winnerGroup[0].closest('.matchup-card');
+            const card = winnerGroup.length > 0 ? winnerGroup[0].closest('.matchup-card') : null;
             
-            if (winnerGroup.value === "" || gamesGroup.value === "") {
+            if (card && (winnerGroup.value === "" || gamesGroup.value === "")) {
                 card.style.border = "2px solid #C8102E";
                 card.style.backgroundColor = "#fff0f2";
                 if (!firstInvalid) firstInvalid = card;
-            } else {
+            } else if (card) {
                 card.style.border = "none";
                 card.style.backgroundColor = "var(--card)"; 
             }
@@ -301,25 +315,22 @@
 
         if (firstInvalid) {
             firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            return; // Stop submission
+            return;
         }
 
         const submitButton = form.querySelector('button[type="submit"]');
         submitButton.disabled = true;
         submitButton.innerText = "Processing...";
-
         loading.style.display = 'block';
-        loading.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
         fetch(scriptURL, { method: 'POST', body: new FormData(form)})
             .then(response => {
                 loading.style.display = 'none';
                 formContainer.style.display = 'none';
+                document.querySelector('.nav-buttons').style.display = 'none'; // Hide tabs on success
                 successMsg.style.display = 'block';
-                successMsg.scrollIntoView({ behavior: 'smooth', block: 'center' });
             })
             .catch(error => {
-                console.error('Error!', error.message);
                 submitButton.disabled = false;
                 submitButton.innerText = "Lock In My Bracket 🔒";
                 loading.style.display = 'none';
