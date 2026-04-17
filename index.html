@@ -62,6 +62,11 @@
         .lb-name { width: 65%; font-weight: 600; font-size: 1.1rem; }
         .lb-score { width: 20%; text-align: right; font-weight: bold; color: var(--secondary); font-size: 1.2rem; }
         
+        /* Podium Row Styling */
+        .lb-row.rank-1 { background-color: #FFF8E1; border-left: 5px solid #FFD700; }
+        .lb-row.rank-2 { background-color: #F8F9FA; border-left: 5px solid #C0C0C0; }
+        .lb-row.rank-3 { background-color: #FAF2EC; border-left: 5px solid #CD7F32; }
+        
         /* Expandable Picks Grid */
         .lb-details { display: none; padding: 15px; background-color: #f8f9fa; border-bottom: 2px solid #ddd; }
         .picks-grid-summary { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 0.85rem; }
@@ -95,6 +100,14 @@
         <h3>The Buy-In 💰</h3>
         <p>The entry fee is <strong>$50</strong>. Please send your Interac e-transfer to <strong>pat.normandin@gmail.com</strong>.</p>
         <p><em>(Look for the green checkmark ✅ next to your name on the Leaderboard to confirm your payment was received by the Commish).</em></p>
+
+        <h3>Prizes & Payouts 🏆</h3>
+        <p>The total prize pool is determined by the number of paid entries. Payouts will be awarded to the Top 3 players at the end of the playoffs:</p>
+        <ul style="padding-left: 20px; margin-bottom: 20px;">
+            <li style="margin-bottom: 10px;">🥇 <strong>1st Place:</strong> 75% of the total pot</li>
+            <li style="margin-bottom: 10px;">🥈 <strong>2nd Place:</strong> The remaining pot (approx. 25% minus $20)</li>
+            <li>🥉 <strong>3rd Place:</strong> Money back ($20 buy-in returned)</li>
+        </ul>
 
         <h3>How It Works</h3>
         <p>Before the puck drops for Game 1, you must select the outright winner for every Round 1 series, AND predict exactly how many games the series will go (4, 5, 6, or 7). Don't forget to pay the lady!</p>
@@ -188,7 +201,7 @@
         <p>Your Round 1 picks are officially locked in.</p>
         
         <div class="payment-alert">
-            <strong>⚠️ Don't forget your buy-in!</strong><br>
+            <strong>⚠️ Don't forget your loadLead-in!</strong><br>
             Send your $50 e-transfer to:<br>
             <span style="font-size: 1.1rem; color: var(--primary);"><strong>pat.normandin@gmail.com</strong></span>
         </div>
@@ -285,9 +298,17 @@
                     // Add the 💸✅ if paid, or 💸⏳ if not paid
                     let paidBadge = player.paid ? '<span title="Paid!" style="font-size: 0.8rem; margin-left: 5px;">💸✅</span>' : '<span title="Unpaid" style="font-size: 0.8rem; margin-left: 5px;">💸⏳</span>';
 
+                    // Assign Medals and Row Highlighting
+                    let rankDisplay = index + 1;
+                    let rowClass = "lb-row";
+                    
+                    if (index === 0) { rankDisplay = '🥇'; rowClass += ' rank-1'; }
+                    else if (index === 1) { rankDisplay = '🥈'; rowClass += ' rank-2'; }
+                    else if (index === 2) { rankDisplay = '🥉'; rowClass += ' rank-3'; }
+
                     lbBody.innerHTML += `
-                        <div class="lb-row" onclick="toggleDetails(${index})">
-                            <div class="lb-rank">${index + 1}</div>
+                        <div class="${rowClass}" onclick="toggleDetails(${index})">
+                            <div class="lb-rank" style="font-size: ${index < 3 ? '1.5rem' : '1rem'};">${rankDisplay}</div>
                             <div class="lb-name">${player.alias}${paidBadge}</div>
                             <div class="lb-score">${player.score}</div>
                         </div>
