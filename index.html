@@ -282,8 +282,8 @@
                         picksHtml += `<div class="pick-item"><strong>${p.match}</strong>${text}</div>`;
                     });
 
-                    // Add the 💸✅ if they are marked as paid
-                    let paidBadge = player.paid ? '<span title="Paid!" style="font-size: 0.8rem; margin-left: 5px;">💸✅</span>' : '';
+                    // Add the 💸✅ if paid, or 💸⏳ if not paid
+                    let paidBadge = player.paid ? '<span title="Paid!" style="font-size: 0.8rem; margin-left: 5px;">💸✅</span>' : '<span title="Unpaid" style="font-size: 0.8rem; margin-left: 5px;">💸⏳</span>';
 
                     lbBody.innerHTML += `
                         <div class="lb-row" onclick="toggleDetails(${index})">
