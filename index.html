@@ -26,6 +26,9 @@
         .info-content h3 { color: var(--secondary); margin-top: 20px; margin-bottom: 10px;}
         .point-badge { background: var(--secondary); color: white; padding: 3px 8px; border-radius: 4px; font-weight: bold; }
         
+        /* Payment Alert Style */
+        .payment-alert { background-color: #fff3cd; color: #856404; padding: 15px; border-radius: 8px; border: 1px solid #ffeeba; text-align: center; margin-top: 15px; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        
         /* Form Styles */
         .info-card { background: var(--card); border-radius: 12px; padding: 20px; margin-bottom: 25px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border-top: 5px solid var(--accent); }
         .input-group { margin-bottom: 15px; }
@@ -66,31 +69,35 @@
         .pick-item strong { display: block; color: var(--primary); margin-bottom: 2px; }
         
         .loading { display: none; text-align: center; margin-top: 20px; font-weight: bold; color: var(--secondary); }
-        .success-message { display: none; text-align: center; padding: 40px 20px; }
-        .success-message h2 { color: var(--secondary); font-size: 2rem; }
+        .success-message { display: none; text-align: center; padding: 20px; }
+        .success-message h2 { color: var(--secondary); font-size: 2rem; margin-bottom: 10px; }
     </style>
 </head>
 <body>
 
 <div class="header">
-    <h1>2026 Stanley Cup Playoffs</h1>
-    <p>Round 1 • Pick 'Em Pool 🏒</p>
+    <h1>🏒 2026 Stanley Cup Playoffs 🏆</h1>
+    <p>Round 1 • Pick 'Em Pool 🥅</p>
 </div>
 
 <div class="container" id="main-container">
     
     <div class="nav-buttons">
         <button class="nav-btn active" onclick="switchTab('picks')" id="tab-picks">Make Picks</button>
-        <button class="nav-btn" onclick="loadLeaderboard()" id="tab-board">Leaderboard & Entries</button>
+        <button class="nav-btn" onclick="loadLeaderboard()" id="tab-board">Leaderboard</button>
         <button class="nav-btn" onclick="switchTab('info')" id="tab-info">Rules & Info</button>
     </div>
 
     <div id="info-view" class="info-content">
         <h2>Let's Fucking Gooo 🧊</h2>
-        <p>The quest for the hardest trophy in sports begins now, baby. We are doing this round-by-round.</p>
+        <p>The quest for the hardest trophy in sports begins now. We are doing this round-by-round.</p>
         
+        <h3>The Buy-In 💰</h3>
+        <p>The entry fee is <strong>$50</strong>. Please send your Interac e-transfer to <strong>pat.normandin@gmail.com</strong>.</p>
+        <p><em>(Look for the green checkmark ✅ next to your name on the Leaderboard to confirm your payment was received by the Commish).</em></p>
+
         <h3>How It Works</h3>
-        <p>Before the puck drops for Game 1 on Saturday, you must select the outright winner for every Round 1 series, AND predict exactly how many games the series will go (4, 5, 6, or 7).</p>
+        <p>Before the puck drops for Game 1, you must select the outright winner for every Round 1 series, AND predict exactly how many games the series will go (4, 5, 6, or 7). Don't forget to pay the lady!</p>
 
         <h3>The Scoring System 📈</h3>
         <ul style="padding-left: 20px; margin-bottom: 20px;">
@@ -132,7 +139,6 @@
             </div>
 
             <script>
-                // Generate the 8 matchups dynamically to save HTML space
                 const matchups = [
                     { id: 1, team1: "Carolina 🌪️", val1: "CAR", team2: "Ottawa 💂", val2: "OTT", conf: "East" },
                     { id: 2, team1: "Tampa Bay ⚡", val1: "TB", team2: "Montreal 🏆", val2: "MTL", conf: "East" },
@@ -177,10 +183,17 @@
         <div class="loading">Submitting your picks to the ice... 🧊</div>
     </div>
 
-<div class="success-message" id="success-msg">
-        <h2>🚨 ET LE BUUUT! 🚨</h2>
+    <div class="success-message" id="success-msg">
+        <h2>🚨 ET LE BUUUUT! 🚨</h2>
         <p>Your Round 1 picks are officially locked in.</p>
-        <button onclick="document.getElementById('success-msg').style.display='none'; loadLeaderboard();" style="padding: 10px 20px; margin-top: 20px; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer;">View Leaderboard</button>
+        
+        <div class="payment-alert">
+            <strong>⚠️ Don't forget your buy-in!</strong><br>
+            Send your $50 e-transfer to:<br>
+            <span style="font-size: 1.1rem; color: var(--primary);"><strong>pat.normandin@gmail.com</strong></span>
+        </div>
+
+        <button onclick="document.getElementById('success-msg').style.display='none'; loadLeaderboard();" style="padding: 12px 24px; margin-top: 10px; background: var(--primary); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%;">View Leaderboard</button>
     </div>
 
 </div>
@@ -206,7 +219,6 @@
         if (detailsDiv.style.display === 'block') {
             detailsDiv.style.display = 'none';
         } else {
-            // Close all others first
             document.querySelectorAll('.lb-details').forEach(el => el.style.display = 'none');
             detailsDiv.style.display = 'block';
         }
@@ -223,29 +235,28 @@
             .then(data => {
                 const answerKey = data[1]; // Row 2 is the Answer Key
 
-                // Players start at data[2] (Row 3)
                 let players = data.slice(2).map(row => {
                     let pScore = 0;
+                    
+                    // Check if Column T (Index 19) has any text in it (meaning they paid)
+                    let isPaid = row[19] ? true : false; 
 
-                    // AUTO-SCORING ENGINE
-                    // Loops through the 8 matchups to check Winners (2pts) and Games (1pt)
                     for (let i = 0; i < 8; i++) {
-                        let wIdx = 3 + (i * 2); // Winner columns: 3, 5, 7...
-                        let gIdx = 4 + (i * 2); // Games columns: 4, 6, 8...
+                        let wIdx = 3 + (i * 2); 
+                        let gIdx = 4 + (i * 2); 
 
-                        // Check Series Winner (2 Points)
                         if (answerKey[wIdx] && answerKey[wIdx] !== "" && row[wIdx] === answerKey[wIdx]) {
                             pScore += 2;
                         }
-                        // Check Total Games (1 Point) - using == to allow string/number matching
                         if (answerKey[gIdx] && answerKey[gIdx] !== "" && row[gIdx] == answerKey[gIdx]) {
                             pScore += 1;
                         }
                     }
 
                     return {
-                        alias: row[2], // Column C
-                        score: pScore, // Calculated instantly right here!
+                        alias: row[2], 
+                        score: pScore,
+                        paid: isPaid,
                         picks: [
                             { match: "CAR/OTT", winner: row[3], games: row[4] },
                             { match: "TB/MTL", winner: row[5], games: row[6] },
@@ -259,7 +270,6 @@
                     };
                 });
 
-                // Filter out blanks and sort highest to lowest
                 players = players.filter(p => p.alias && p.alias !== "");
                 players.sort((a, b) => b.score - a.score);
 
@@ -272,10 +282,13 @@
                         picksHtml += `<div class="pick-item"><strong>${p.match}</strong>${text}</div>`;
                     });
 
+                    // Add the 💸✅ if they are marked as paid
+                    let paidBadge = player.paid ? '<span title="Paid!" style="font-size: 0.8rem; margin-left: 5px;">💸✅</span>' : '';
+
                     lbBody.innerHTML += `
                         <div class="lb-row" onclick="toggleDetails(${index})">
                             <div class="lb-rank">${index + 1}</div>
-                            <div class="lb-name">${player.alias}</div>
+                            <div class="lb-name">${player.alias}${paidBadge}</div>
                             <div class="lb-score">${player.score}</div>
                         </div>
                         <div class="lb-details" id="details-${index}">
@@ -301,7 +314,6 @@
     form.addEventListener('submit', e => {
         e.preventDefault();
 
-        // Custom Validation
         let firstInvalid = null;
         const inputsToCheck = ['Email', 'Alias'];
         
@@ -315,7 +327,6 @@
             }
         });
 
-        // Check all 8 matchups
         for (let i = 1; i <= 8; i++) {
             const winnerGroup = form.elements['M' + i + '_Winner'];
             const gamesGroup = form.elements['M' + i + '_Games'];
@@ -346,7 +357,7 @@
                 loading.style.display = 'none';
                 formContainer.style.display = 'none';
                 successMsg.style.display = 'block';
-                form.reset(); // Clears the form so the next person has a blank slate!
+                form.reset(); // Cleans the slate for the next person
             })
             .catch(error => {
                 submitButton.disabled = false;
