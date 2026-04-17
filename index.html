@@ -212,7 +212,7 @@
         }
     }
 
-    // Load Leaderboard Data
+    // Load Leaderboard Data & Auto-Score
     function loadLeaderboard() {
         switchTab('board');
         const lbBody = document.getElementById('leaderboard-body');
@@ -221,11 +221,31 @@
         fetch(scriptURL)
             .then(response => response.json())
             .then(data => {
-                // data[0] is headers, data[1] is Answer Key. Players start at data[2]
+                const answerKey = data[1]; // Row 2 is the Answer Key
+
+                // Players start at data[2] (Row 3)
                 let players = data.slice(2).map(row => {
+                    let pScore = 0;
+
+                    // AUTO-SCORING ENGINE
+                    // Loops through the 8 matchups to check Winners (2pts) and Games (1pt)
+                    for (let i = 0; i < 8; i++) {
+                        let wIdx = 3 + (i * 2); // Winner columns: 3, 5, 7...
+                        let gIdx = 4 + (i * 2); // Games columns: 4, 6, 8...
+
+                        // Check Series Winner (2 Points)
+                        if (answerKey[wIdx] && answerKey[wIdx] !== "" && row[wIdx] === answerKey[wIdx]) {
+                            pScore += 2;
+                        }
+                        // Check Total Games (1 Point) - using == to allow string/number matching
+                        if (answerKey[gIdx] && answerKey[gIdx] !== "" && row[gIdx] == answerKey[gIdx]) {
+                            pScore += 1;
+                        }
+                    }
+
                     return {
                         alias: row[2], // Column C
-                        score: row[19] || 0, // Column T (Index 19)
+                        score: pScore, // Calculated instantly right here!
                         picks: [
                             { match: "CAR/OTT", winner: row[3], games: row[4] },
                             { match: "TB/MTL", winner: row[5], games: row[6] },
@@ -239,21 +259,19 @@
                     };
                 });
 
-                // Filter out blanks and sort
+                // Filter out blanks and sort highest to lowest
                 players = players.filter(p => p.alias && p.alias !== "");
                 players.sort((a, b) => b.score - a.score);
 
                 lbBody.innerHTML = '';
                 
                 players.forEach((player, index) => {
-                    // Generate the mini grid of picks for this player
                     let picksHtml = '';
                     player.picks.forEach(p => {
                         let text = p.winner ? `${p.winner} in ${p.games}` : "No Pick";
                         picksHtml += `<div class="pick-item"><strong>${p.match}</strong>${text}</div>`;
                     });
 
-                    // Add Main Row + Hidden Details Row
                     lbBody.innerHTML += `
                         <div class="lb-row" onclick="toggleDetails(${index})">
                             <div class="lb-rank">${index + 1}</div>
@@ -332,7 +350,7 @@
             })
             .catch(error => {
                 submitButton.disabled = false;
-                submitButton.innerText = "Lock In My Bracket 🔒";
+                submitButton.innerText = "Lock In My Picks 🔒";
                 loading.style.display = 'none';
                 alert("Something went wrong. Please try again!");
             });
