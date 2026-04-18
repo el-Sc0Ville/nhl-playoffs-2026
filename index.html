@@ -88,7 +88,7 @@
 <div class="container" id="main-container">
     
     <div class="nav-buttons">
-        <button class="nav-btn active" onclick="switchTab('picks')" id="tab-picks">Make Picks</button>
+        <button class="nav-btn active" onclick="switchTab('picks')" id="tab-picks">Status: CLOSED 🔒</button>
         <button class="nav-btn" onclick="loadLeaderboard()" id="tab-board">Leaderboard</button>
         <button class="nav-btn" onclick="switchTab('info')" id="tab-info">Rules & Info</button>
     </div>
@@ -102,12 +102,13 @@
         <p><em>(Look for the green checkmark ✅ next to your name on the Leaderboard to confirm your payment was received by the Commish).</em></p>
 
         <h3>Prizes & Payouts 🏆</h3>
-        <p>The total prize pool is determined by the number of paid entries. Payouts will be awarded to the Top 3 players at the end of the playoffs:</p>
-        <ul style="padding-left: 20px; margin-bottom: 20px;">
-            <li style="margin-bottom: 10px;">🥇 <strong>1st Place:</strong> 75% of the total pot</li>
-            <li style="margin-bottom: 10px;">🥈 <strong>2nd Place:</strong> The remaining pot (approx. 25% minus $50)</li>
-            <li>🥉 <strong>3rd Place:</strong> Money back ($50 buy-in returned)</li>
-        </ul>
+                <p><em>Well, this escalated quickly!</em> Since this pool absolutely blew up and we locked in an incredible <strong>27 entries at $50 a pop</strong>, the total prize pot is sitting at a massive <strong>$1,350</strong>! 🤑</p>
+                <p>Because the pot got so big, I've adjusted the payout structure to spread the wealth a bit more evenly across the podium rather than making it so top-heavy. Here is the new official breakdown:</p>
+                <ul style="padding-left: 20px; margin-bottom: 20px; font-size: 1.1rem;">
+                    <li style="margin-bottom: 10px;">🥇 <strong>1st Place (60%):</strong> $810</li>
+                    <li style="margin-bottom: 10px;">🥈 <strong>2nd Place (30%):</strong> $405</li>
+                    <li>🥉 <strong>3rd Place (10%):</strong> $135</li>
+                </ul>
 
         <h3>How It Works</h3>
         <p>Before the puck drops for Game 1, you must select the outright winner for every Round 1 series, AND predict exactly how many games the series will go (4, 5, 6, or 7). Don't forget to pay the lady!</p>
@@ -139,17 +140,22 @@
     </div>
 
     <div id="picks-view">
-        <form name="submit-to-google-sheet" novalidate>
-            <div class="info-card">
-                <div class="input-group">
-                    <label>Email Address (Required)</label>
-                    <input type="email" name="Email" placeholder="e.g. gretzky99@example.com" required>
-                </div>
-                <div class="input-group">
-                    <label>Alias / Nickname (For the Leaderboard)</label>
-                    <input type="text" name="Alias" placeholder="e.g. The Great One" required>
-                </div>
+        <div class="info-content" style="text-align: center; border-top: 5px solid var(--accent);">
+            <h2 style="color: var(--accent);">🚫 Submissions are Closed</h2>
+            <p>The puck has dropped! All Round 1 brackets are now locked in and the scoring is live on the Leaderboard tab.</p>
+        
+            <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                <p style="margin:0; font-weight: bold;">📅 ROUND 2 ANNOUNCEMENT</p>
+                <p style="margin:5px 0 0; font-size: 0.9rem;">Check back here immediately following the conclusion of Round 1 to submit your next set of picks!</p>
             </div>
+
+            <div style="background-color: #fff3cd; color: #856404; padding: 20px; border-radius: 8px; border: 1px solid #ffeeba; margin-top: 25px;">
+                <h3 style="margin-top:0;">💸 Final Payment Reminder</h3>
+                <p>We have received <strong>27 submissions</strong> (amazing turnout!), but we are still missing funds from a final few players.</p>
+                <p>If you have an <span style="font-weight:bold;">❌</span> next to your name on the leaderboard, please e-transfer your $50 to <strong>pat.normandin@gmail.com</strong> so we can lock in the final prize pool!</p>
+            </div>
+        </div>
+    </div>
 
             <script>
                 const matchups = [
