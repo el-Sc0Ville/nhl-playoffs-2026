@@ -5,80 +5,66 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>2026 Stanley Cup Playoffs - Round 1</title>
     <style>
-        :root { --primary: #111111; --secondary: #0076B6; --accent: #C8102E; --bg: #f0f2f5; --card: #ffffff; }
+        :root { --primary: #111111; --secondary: #0076B6; --accent: #C8102E; --bg: #f4f6f8; --card: #ffffff; }
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: var(--bg); margin: 0; padding: 0; color: #333; }
-        .header { background: linear-gradient(135deg, #111 0%, #333 100%); color: white; padding: 25px 20px; text-align: center; border-bottom: 4px solid var(--secondary); }
-        .header h1 { margin: 0; font-size: 1.8rem; letter-spacing: 1px; text-transform: uppercase; }
-        .header p { margin: 5px 0 0; opacity: 0.8; font-size: 1rem; }
+        .header { background: linear-gradient(135deg, #111 0%, #2a2a2a 100%); color: white; padding: 30px 20px; text-align: center; border-bottom: 4px solid var(--secondary); box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .header h1 { margin: 0; font-size: 1.9rem; letter-spacing: 1px; text-transform: uppercase; font-weight: 800; }
+        .header p { margin: 8px 0 0; opacity: 0.85; font-size: 1.05rem; }
         .container { max-width: 650px; margin: 0 auto; padding: 20px; }
         
-        /* Navigation Tabs */
-        .nav-buttons { display: flex; gap: 8px; margin-bottom: 25px; overflow-x: auto; padding-bottom: 5px; }
-        .nav-btn { background: #ddd; color: #333; border: none; padding: 12px 15px; border-radius: 8px; font-weight: bold; flex: 1; cursor: pointer; transition: 0.2s; white-space: nowrap; font-size: 0.9rem; }
-        .nav-btn.active { background: var(--secondary); color: white; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        /* Smooth Fade In Animation */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Navigation Tabs (Sticky + Glassmorphism) */
+        .nav-buttons { 
+            display: flex; gap: 8px; margin-bottom: 25px; overflow-x: auto; padding: 15px 0; 
+            position: sticky; top: 0; background: rgba(244, 246, 248, 0.85); 
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); z-index: 100;
+        }
+        .nav-btn { background: #e0e4e8; color: #444; border: none; padding: 12px 15px; border-radius: 10px; font-weight: 700; flex: 1; cursor: pointer; transition: all 0.2s ease; white-space: nowrap; font-size: 0.9rem; }
+        .nav-btn.active { background: var(--secondary); color: white; box-shadow: 0 4px 12px rgba(0, 118, 182, 0.3); transform: translateY(-2px); }
 
         /* Sections */
-        #leaderboard-view, #info-view { display: none; }
+        #leaderboard-view, #info-view, #picks-view { display: none; animation: fadeIn 0.4s ease-out; }
         
-        /* Info Tab Styles */
-        .info-content { background: var(--card); border-radius: 12px; padding: 25px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); line-height: 1.6; }
-        .info-content h2 { color: var(--primary); margin-top: 0; border-bottom: 2px solid #eee; padding-bottom: 10px;}
-        .info-content h3 { color: var(--secondary); margin-top: 20px; margin-bottom: 10px;}
-        .point-badge { background: var(--secondary); color: white; padding: 3px 8px; border-radius: 4px; font-weight: bold; }
+        /* Card Styles */
+        .info-content { background: var(--card); border-radius: 16px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.06); line-height: 1.6; }
+        .info-content h2 { color: var(--primary); margin-top: 0; border-bottom: 2px solid #f0f2f5; padding-bottom: 12px; font-weight: 800;}
+        .info-content h3 { color: var(--secondary); margin-top: 25px; margin-bottom: 12px; font-weight: 700;}
+        .point-badge { background: var(--secondary); color: white; padding: 4px 10px; border-radius: 6px; font-weight: bold; font-size: 0.9rem; }
         
-        /* Payment Alert Style */
-        .payment-alert { background-color: #fff3cd; color: #856404; padding: 15px; border-radius: 8px; border: 1px solid #ffeeba; text-align: center; margin-top: 15px; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        
-        /* Form Styles */
-        .info-card { background: var(--card); border-radius: 12px; padding: 20px; margin-bottom: 25px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border-top: 5px solid var(--accent); }
-        .input-group { margin-bottom: 15px; }
-        .input-group label { font-weight: bold; display: block; margin-bottom: 8px; font-size: 0.95rem; }
-        input[type="text"], input[type="email"] { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 16px; box-sizing: border-box; }
-        
-        .matchup-card { background: var(--card); border-radius: 12px; padding: 20px; margin-bottom: 25px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
-        .matchup-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 15px; }
-        .matchup-header h3 { margin: 0; font-size: 1.2rem; color: var(--primary); }
-        .conference-badge { font-size: 0.75rem; font-weight: bold; padding: 4px 8px; border-radius: 4px; background: #eee; color: #555; text-transform: uppercase; letter-spacing: 1px; }
-        
-        .pick-section { margin-bottom: 15px; }
-        .pick-section h4 { margin: 0 0 10px 0; font-size: 0.95rem; color: #555; }
-        
-        .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .games-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
-        
-        .radio-label { display: flex; justify-content: center; align-items: center; padding: 12px 5px; border: 2px solid #e0e0e0; border-radius: 8px; cursor: pointer; transition: all 0.2s; font-weight: 500; font-size: 0.95rem; text-align: center; }
-        input[type="radio"] { display: none; }
-        input[type="radio"]:checked + .radio-label { border-color: var(--secondary); background-color: #e6f4ff; color: var(--secondary); font-weight: bold; }
-        
-        button[type="submit"] { background-color: var(--accent); color: white; border: none; padding: 18px 30px; font-size: 1.2rem; font-weight: bold; border-radius: 50px; cursor: pointer; width: 100%; box-shadow: 0 4px 15px rgba(200, 16, 46, 0.3); transition: transform 0.1s; text-transform: uppercase; letter-spacing: 1px; }
-        button[type="submit"]:active { transform: scale(0.98); }
+        /* Alerts */
+        .payment-alert { background: linear-gradient(135deg, #fff9e6 0%, #fff3cd 100%); color: #856404; padding: 20px; border-radius: 12px; border: 1px solid #ffeeba; text-align: center; margin-top: 20px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(133, 100, 4, 0.05); }
+        .announcement-box { background: #f8f9fa; padding: 18px; border-radius: 12px; margin: 20px 0; border-left: 4px solid var(--secondary); }
         
         /* Leaderboard / Entries Styles */
-        .leaderboard-container { background: var(--card); border-radius: 12px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
-        .lb-header { display: flex; background: var(--primary); color: white; padding: 15px; font-weight: bold; }
-        .lb-row { display: flex; padding: 15px; border-bottom: 1px solid #eee; cursor: pointer; transition: 0.2s; align-items: center; }
-        .lb-row:hover { background-color: #f9f9f9; }
-        .lb-rank { width: 15%; font-weight: bold; color: #888; }
-        .lb-name { width: 65%; font-weight: 600; font-size: 1.1rem; }
-        .lb-score { width: 20%; text-align: right; font-weight: bold; color: var(--secondary); font-size: 1.2rem; }
+        .leaderboard-container { background: var(--card); border-radius: 16px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.06); }
+        .lb-header { display: flex; background: var(--primary); color: white; padding: 16px 20px; font-weight: bold; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 1px; }
+        .lb-row { display: flex; padding: 16px 20px; border-bottom: 1px solid #f0f2f5; cursor: pointer; transition: all 0.2s ease; align-items: center; background: white; }
+        .lb-row:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(0,0,0,0.05); z-index: 10; position: relative; }
+        .lb-rank { width: 15%; font-weight: 800; color: #888; }
+        .lb-name { width: 65%; font-weight: 700; font-size: 1.1rem; color: #222; }
+        .lb-score { width: 20%; text-align: right; font-weight: 800; color: var(--secondary); font-size: 1.25rem; }
         
         /* Podium Row Styling */
-        .lb-row.rank-1 { background-color: #FFF8E1; border-left: 5px solid #FFD700; }
-        .lb-row.rank-2 { background-color: #F8F9FA; border-left: 5px solid #C0C0C0; }
-        .lb-row.rank-3 { background-color: #FAF2EC; border-left: 5px solid #CD7F32; }
+        .lb-row.rank-1 { background: linear-gradient(to right, #FFF8E1, #ffffff); border-left: 5px solid #FFD700; }
+        .lb-row.rank-2 { background: linear-gradient(to right, #F8F9FA, #ffffff); border-left: 5px solid #C0C0C0; }
+        .lb-row.rank-3 { background: linear-gradient(to right, #FAF2EC, #ffffff); border-left: 5px solid #CD7F32; }
         
         /* Expandable Picks Grid */
-        .lb-details { display: none; padding: 15px; background-color: #f8f9fa; border-bottom: 2px solid #ddd; }
-        .picks-grid-summary { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 0.85rem; }
-        .pick-item { background: white; padding: 8px; border-radius: 6px; border: 1px solid #eee; text-align: center; }
-        .pick-item strong { display: block; color: var(--primary); margin-bottom: 2px; }
+        .lb-details { display: none; padding: 20px; background-color: #fafbfc; border-bottom: 2px solid #eee; box-shadow: inset 0 4px 6px rgba(0,0,0,0.02); }
+        .picks-grid-summary { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 0.85rem; }
+        .pick-item { background: white; padding: 10px; border-radius: 8px; border: 1px solid #eaeaea; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        .pick-item strong { display: block; color: var(--primary); margin-bottom: 4px; font-size: 0.9rem; }
         
-        .loading { display: none; text-align: center; margin-top: 20px; font-weight: bold; color: var(--secondary); }
-        .success-message { display: none; text-align: center; padding: 20px; }
-        .success-message h2 { color: var(--secondary); font-size: 2rem; margin-bottom: 10px; }
+        .refresh-btn { width: 100%; padding: 14px; background: #e0e4e8; color: #333; border: none; border-radius: 12px; margin-top: 15px; font-weight: 800; cursor: pointer; transition: 0.2s; font-size: 1rem; }
+        .refresh-btn:hover { background: #d0d5da; }
     </style>
 </head>
-<body>
+<body onload="loadLeaderboard()">
 
 <div class="header">
     <h1>🏒 2026 Stanley Cup Playoffs 🏆</h1>
@@ -88,27 +74,27 @@
 <div class="container" id="main-container">
     
     <div class="nav-buttons">
-        <button class="nav-btn active" onclick="switchTab('picks')" id="tab-picks">Status: CLOSED 🔒</button>
         <button class="nav-btn" onclick="loadLeaderboard()" id="tab-board">Leaderboard</button>
+        <button class="nav-btn" onclick="switchTab('picks')" id="tab-picks">Status: CLOSED 🔒</button>
         <button class="nav-btn" onclick="switchTab('info')" id="tab-info">Rules & Info</button>
     </div>
 
     <div id="info-view" class="info-content">
-        <h2>Let's Fucking Gooo 🧊</h2>
+        <h2>Let's Gooo 🧊</h2>
         <p>The quest for the hardest trophy in sports begins now. We are doing this round-by-round.</p>
         
         <h3>The Buy-In 💰</h3>
         <p>The entry fee is <strong>$50</strong>. Please send your Interac e-transfer to <strong>pat.normandin@gmail.com</strong>.</p>
-        <p><em>(Look for the green checkmark ✅ next to your name on the Leaderboard to confirm your payment was received by the Commish).</em></p>
+        <p><em>(Look for the 💸✅ next to your name on the Leaderboard to confirm your payment was received by the Commish).</em></p>
 
         <h3>Prizes & Payouts 🏆</h3>
-                <p><em>Well, this escalated quickly!</em> Since this pool absolutely blew up and we locked in an incredible <strong>27 entries at $50 a pop</strong>, the total prize pot is sitting at a massive <strong>$1,350</strong>! 🤑</p>
-                <p>Because the pot got so big, I've adjusted the payout structure to spread the wealth a bit more evenly across the podium rather than making it so top-heavy. Here is the new official breakdown:</p>
-                <ul style="padding-left: 20px; margin-bottom: 20px; font-size: 1.1rem;">
-                    <li style="margin-bottom: 10px;">🥇 <strong>1st Place (60%):</strong> $810</li>
-                    <li style="margin-bottom: 10px;">🥈 <strong>2nd Place (30%):</strong> $405</li>
-                    <li>🥉 <strong>3rd Place (10%):</strong> $135</li>
-                </ul>
+        <p><em>Well, this escalated quickly!</em> Since this pool absolutely blew up and we locked in an incredible <strong>27 entries at $50 a pop</strong>, the total prize pot is sitting at a massive <strong>$1,350</strong>! 🤑</p>
+        <p>Because the pot got so big, I've adjusted the payout structure to spread the wealth a bit more evenly across the podium rather than making it so top-heavy. Here is the new official breakdown:</p>
+        <ul style="padding-left: 20px; margin-bottom: 20px; font-size: 1.1rem;">
+            <li style="margin-bottom: 10px;">🥇 <strong>1st Place (60%):</strong> $810</li>
+            <li style="margin-bottom: 10px;">🥈 <strong>2nd Place (30%):</strong> $405</li>
+            <li>🥉 <strong>3rd Place (10%):</strong> $135</li>
+        </ul>
 
         <h3>How It Works</h3>
         <p>Before the puck drops for Game 1, you must select the outright winner for every Round 1 series, AND predict exactly how many games the series will go (4, 5, 6, or 7). Don't forget to pay the lady!</p>
@@ -132,87 +118,29 @@
                 <div class="lb-score">Pts</div>
             </div>
             <div id="leaderboard-body">
-                <div style="padding: 20px; text-align: center;">Fetching data from the ice... 🏒</div>
+                <div style="padding: 30px; text-align: center; color: #666; font-weight: 600;">Fetching data from the ice... 🏒</div>
             </div>
         </div>
-        <p style="text-align: center; font-size: 0.85rem; color: #888; margin-top: 15px;">Tap any player to view their bracket!</p>
-        <button onclick="loadLeaderboard()" style="width:100%; padding:10px; background:#ddd; border:none; border-radius:8px; margin-top:10px; font-weight:bold; cursor:pointer;">🔄 Refresh Standings</button>
+        <p style="text-align: center; font-size: 0.9rem; color: #888; margin-top: 15px; font-weight: 500;">Tap any player to view their bracket!</p>
+        <button class="refresh-btn" onclick="loadLeaderboard()">🔄 Refresh Standings</button>
     </div>
 
     <div id="picks-view">
         <div class="info-content" style="text-align: center; border-top: 5px solid var(--accent);">
-            <h2 style="color: var(--accent);">🚫 Submissions are Closed</h2>
-            <p>The puck has dropped! All Round 1 brackets are now locked in and the scoring is live on the Leaderboard tab.</p>
+            <h2 style="color: var(--accent); border-bottom: none;">🚫 Submissions are Closed</h2>
+            <p style="font-size: 1.1rem; color: #555;">The puck has dropped! All Round 1 brackets are now locked in and the scoring is live on the Leaderboard tab.</p>
         
-            <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 20px 0;">
-                <p style="margin:0; font-weight: bold;">📅 ROUND 2 ANNOUNCEMENT</p>
-                <p style="margin:5px 0 0; font-size: 0.9rem;">Check back here immediately following the conclusion of Round 1 to submit your next set of picks!</p>
+            <div class="announcement-box">
+                <p style="margin:0; font-weight: 800; color: var(--primary);">📅 ROUND 2 ANNOUNCEMENT</p>
+                <p style="margin:8px 0 0; font-size: 0.95rem; color: #555;">Check back here immediately following the conclusion of Round 1 to submit your next set of picks!</p>
             </div>
 
-            <div style="background-color: #fff3cd; color: #856404; padding: 20px; border-radius: 8px; border: 1px solid #ffeeba; margin-top: 25px;">
-                <h3 style="margin-top:0;">💸 Final Payment Reminder</h3>
+            <div class="payment-alert">
+                <h3 style="margin-top:0; color: #856404;">💸 Final Payment Reminder</h3>
                 <p>We have received <strong>27 submissions</strong> (amazing turnout!), but we are still missing funds from a final few players.</p>
-                <p>If you have an <span style="font-weight:bold;">❌</span> next to your name on the leaderboard, please e-transfer your $50 to <strong>pat.normandin@gmail.com</strong> so we can lock in the final prize pool!</p>
+                <p>If you have an <span style="font-weight:bold;">💸⏳</span> next to your name on the leaderboard, please e-transfer your $50 to <strong>pat.normandin@gmail.com</strong> so we can lock in the final prize pool!</p>
             </div>
         </div>
-    </div>
-
-            <script>
-                const matchups = [
-                    { id: 1, team1: "Carolina 🌪️", val1: "CAR", team2: "Ottawa 💂", val2: "OTT", conf: "East" },
-                    { id: 2, team1: "Tampa Bay ⚡", val1: "TB", team2: "Montreal 🏆", val2: "MTL", conf: "East" },
-                    { id: 3, team1: "Buffalo 🦬", val1: "BUF", team2: "Boston 🐻", val2: "BOS", conf: "East" },
-                    { id: 4, team1: "Pittsburgh 🐧", val1: "PIT", team2: "Philadelphia 🪽", val2: "PHI", conf: "East" },
-                    { id: 5, team1: "Colorado 🏔️", val1: "COL", team2: "Los Angeles 👑", val2: "LA", conf: "West" },
-                    { id: 6, team1: "Dallas ⭐", val1: "DAL", team2: "Minnesota 🌲", val2: "MIN", conf: "West" },
-                    { id: 7, team1: "Vegas 🎰", val1: "VGK", team2: "Utah 🦣", val2: "UTA", conf: "West" },
-                    { id: 8, team1: "Edmonton 🛢️", val1: "EDM", team2: "Anaheim 🦆", val2: "ANA", conf: "West" }
-                ];
-
-                matchups.forEach(m => {
-                    document.write(`
-                        <div class="matchup-card">
-                            <div class="matchup-header">
-                                <h3>${m.team1} vs. ${m.team2}</h3>
-                                <span class="conference-badge">${m.conf}</span>
-                            </div>
-                            <div class="pick-section">
-                                <h4>Series Winner:</h4>
-                                <div class="options-grid">
-                                    <label><input type="radio" name="M${m.id}_Winner" value="${m.val1}"><div class="radio-label">${m.team1}</div></label>
-                                    <label><input type="radio" name="M${m.id}_Winner" value="${m.val2}"><div class="radio-label">${m.team2}</div></label>
-                                </div>
-                            </div>
-                            <div class="pick-section">
-                                <h4>Total Games:</h4>
-                                <div class="games-grid">
-                                    <label><input type="radio" name="M${m.id}_Games" value="4"><div class="radio-label">4</div></label>
-                                    <label><input type="radio" name="M${m.id}_Games" value="5"><div class="radio-label">5</div></label>
-                                    <label><input type="radio" name="M${m.id}_Games" value="6"><div class="radio-label">6</div></label>
-                                    <label><input type="radio" name="M${m.id}_Games" value="7"><div class="radio-label">7</div></label>
-                                </div>
-                            </div>
-                        </div>
-                    `);
-                });
-            </script>
-
-            <button type="submit">Lock In My Picks 🔒</button>
-        </form>
-        <div class="loading">Submitting your picks to the ice... 🧊</div>
-    </div>
-
-    <div class="success-message" id="success-msg">
-        <h2>🚨 ET LE BUUUUT! 🚨</h2>
-        <p>Your Round 1 picks are officially locked in.</p>
-        
-        <div class="payment-alert">
-            <strong>⚠️ Don't forget your buy-in!</strong><br>
-            Send your $50 e-transfer to:<br>
-            <span style="font-size: 1.1rem; color: var(--primary);"><strong>pat.normandin@gmail.com</strong></span>
-        </div>
-
-        <button onclick="document.getElementById('success-msg').style.display='none'; loadLeaderboard();" style="padding: 12px 24px; margin-top: 10px; background: var(--primary); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%;">View Leaderboard</button>
     </div>
 
 </div>
@@ -247,7 +175,7 @@
     function loadLeaderboard() {
         switchTab('board');
         const lbBody = document.getElementById('leaderboard-body');
-        lbBody.innerHTML = '<div style="padding: 20px; text-align: center;">Fetching data from the ice... 🏒</div>';
+        lbBody.innerHTML = '<div style="padding: 30px; text-align: center; color: #666; font-weight: 600;">Fetching data from the ice... 🏒</div>';
 
         fetch(scriptURL)
             .then(response => response.json())
@@ -302,7 +230,7 @@
                     });
 
                     // Add the 💸✅ if paid, or 💸⏳ if not paid
-                    let paidBadge = player.paid ? '<span title="Paid!" style="font-size: 0.8rem; margin-left: 5px;">💸✅</span>' : '<span title="Unpaid" style="font-size: 0.8rem; margin-left: 5px;">💸⏳</span>';
+                    let paidBadge = player.paid ? '<span title="Paid!" style="font-size: 0.85rem; margin-left: 6px;">💸✅</span>' : '<span title="Unpaid" style="font-size: 0.85rem; margin-left: 6px;">💸⏳</span>';
 
                     // Assign Medals and Row Highlighting
                     let rankDisplay = index + 1;
@@ -328,71 +256,9 @@
             })
             .catch(error => {
                 console.error('Error:', error);
-                lbBody.innerHTML = '<div style="padding:20px; text-align:center; color:red;">Failed to load standings. Try again!</div>';
+                lbBody.innerHTML = '<div style="padding:30px; text-align:center; color:red; font-weight:bold;">Failed to load standings. Try again!</div>';
             });
     }
-
-    // Form Submission & Validation
-    const form = document.forms['submit-to-google-sheet'];
-    const loading = document.querySelector('.loading');
-    const successMsg = document.querySelector('.success-message');
-    const formContainer = document.getElementById('picks-view');
-
-    form.addEventListener('submit', e => {
-        e.preventDefault();
-
-        let firstInvalid = null;
-        const inputsToCheck = ['Email', 'Alias'];
-        
-        inputsToCheck.forEach(name => {
-            const input = form.elements[name];
-            if (!input.value.trim()) {
-                input.style.border = "3px solid #C8102E";
-                if (!firstInvalid) firstInvalid = input;
-            } else {
-                input.style.border = "2px solid #ddd";
-            }
-        });
-
-        for (let i = 1; i <= 8; i++) {
-            const winnerGroup = form.elements['M' + i + '_Winner'];
-            const gamesGroup = form.elements['M' + i + '_Games'];
-            const card = winnerGroup.length > 0 ? winnerGroup[0].closest('.matchup-card') : null;
-            
-            if (card && (winnerGroup.value === "" || gamesGroup.value === "")) {
-                card.style.border = "2px solid #C8102E";
-                card.style.backgroundColor = "#fff0f2";
-                if (!firstInvalid) firstInvalid = card;
-            } else if (card) {
-                card.style.border = "none";
-                card.style.backgroundColor = "var(--card)"; 
-            }
-        }
-
-        if (firstInvalid) {
-            firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            return;
-        }
-
-        const submitButton = form.querySelector('button[type="submit"]');
-        submitButton.disabled = true;
-        submitButton.innerText = "Processing...";
-        loading.style.display = 'block';
-
-        fetch(scriptURL, { method: 'POST', body: new FormData(form)})
-            .then(response => {
-                loading.style.display = 'none';
-                formContainer.style.display = 'none';
-                successMsg.style.display = 'block';
-                form.reset(); // Cleans the slate for the next person
-            })
-            .catch(error => {
-                submitButton.disabled = false;
-                submitButton.innerText = "Lock In My Picks 🔒";
-                loading.style.display = 'none';
-                alert("Something went wrong. Please try again!");
-            });
-    });
 </script>
 
 </body>
