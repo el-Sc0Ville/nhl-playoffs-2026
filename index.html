@@ -183,11 +183,11 @@
             .then(response => response.json())
             .then(data => {
                 const answerKey = data[1]; // Row 2 is the Answer Key
+                const liveStatus = data[2]; // Row 3 is the new Live Status
 
-                let players = data.slice(2).map(row => {
+                // Players now start at data.slice(3) because of the new row!
+                let players = data.slice(3).map(row => {
                     let pScore = 0;
-                    
-                    // Check if Column T (Index 19) has any text in it (meaning they paid)
                     let isPaid = row[19] ? true : false; 
 
                     for (let i = 0; i < 8; i++) {
@@ -207,14 +207,15 @@
                         score: pScore,
                         paid: isPaid,
                         picks: [
-                            { match: "CAR/OTT", winner: row[3], games: row[4] },
-                            { match: "TB/MTL", winner: row[5], games: row[6] },
-                            { match: "BUF/BOS", winner: row[7], games: row[8] },
-                            { match: "PIT/PHI", winner: row[9], games: row[10] },
-                            { match: "COL/LA", winner: row[11], games: row[12] },
-                            { match: "DAL/MIN", winner: row[13], games: row[14] },
-                            { match: "VGK/UTA", winner: row[15], games: row[16] },
-                            { match: "EDM/ANA", winner: row[17], games: row[18] }
+                            // We grab the live score from the liveStatus row (if you typed one in)
+                            { match: "CAR/OTT", winner: row[3], games: row[4], status: liveStatus[3] },
+                            { match: "TB/MTL", winner: row[5], games: row[6], status: liveStatus[5] },
+                            { match: "BUF/BOS", winner: row[7], games: row[8], status: liveStatus[7] },
+                            { match: "PIT/PHI", winner: row[9], games: row[10], status: liveStatus[9] },
+                            { match: "COL/LA", winner: row[11], games: row[12], status: liveStatus[11] },
+                            { match: "DAL/MIN", winner: row[13], games: row[14], status: liveStatus[13] },
+                            { match: "VGK/UTA", winner: row[15], games: row[16], status: liveStatus[15] },
+                            { match: "EDM/ANA", winner: row[17], games: row[18], status: liveStatus[17] }
                         ]
                     };
                 });
@@ -228,8 +229,42 @@
                     let picksHtml = '';
                     player.picks.forEach(p => {
                         let text = p.winner ? `${p.winner} in ${p.games}` : "No Pick";
-                        picksHtml += `<div class="pick-item"><strong>${p.match}</strong>${text}</div>`;
+                        
+                        // If you typed a status in the sheet, show it in bold red. Otherwise, hide it.
+                        let statusHtml = (p.status && p.status !== "") 
+                            ? `<div style="font-size: 0.8rem; color: var(--accent); font-weight: 800; margin-bottom: 4px;">${p.status}</div>` 
+                            : ``;
+
+                        picksHtml += `<div class="pick-item"><strong>${p.match}</strong>${statusHtml}${text}</div>`;
                     });
+
+                    let paidBadge = player.paid ? '<span title="Paid!" style="font-size: 0.85rem; margin-left: 6px;">💸✅</span>' : '<span title="Unpaid" style="font-size: 0.85rem; margin-left: 6px;">💸⏳</span>';
+
+                    let rankDisplay = index + 1;
+                    let rowClass = "lb-row";
+                    
+                    if (index === 0) { rankDisplay = '🥇'; rowClass += ' rank-1'; }
+                    else if (index === 1) { rankDisplay = '🥈'; rowClass += ' rank-2'; }
+                    else if (index === 2) { rankDisplay = '🥉'; rowClass += ' rank-3'; }
+
+                    lbBody.innerHTML += `
+                        <div class="${rowClass}" onclick="toggleDetails(${index})">
+                            <div class="lb-rank" style="font-size: ${index < 3 ? '1.5rem' : '1rem'};">${rankDisplay}</div>
+                            <div class="lb-name">${player.alias}${paidBadge}</div>
+                            <div class="lb-score">${player.score}</div>
+                        </div>
+                        <div class="lb-details" id="details-${index}">
+                            <div class="picks-grid-summary">
+                                ${picksHtml}
+                            </div>
+                        </div>
+                    `;
+                });
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                lbBody.innerHTML = '<div style="padding:30px; text-align:center; color:red; font-weight:bold;">Failed to load standings. Try again!</div>';
+            });
 
                     // Add the 💸✅ if paid, or 💸⏳ if not paid
                     let paidBadge = player.paid ? '<span title="Paid!" style="font-size: 0.85rem; margin-left: 6px;">💸✅</span>' : '<span title="Unpaid" style="font-size: 0.85rem; margin-left: 6px;">💸⏳</span>';
