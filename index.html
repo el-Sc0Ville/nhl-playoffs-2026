@@ -169,7 +169,7 @@
 
 </div>
 
-<script>
+    <script>
     // ⬇️ PASTE YOUR GOOGLE SCRIPT URL BELOW ⬇️
     const scriptURL = 'https://script.google.com/macros/s/AKfycbyXU0Vn2XDfP_lweHRgsx_H-UtjfMArXVwZA_0XHx3RtiRmdAGL5C0LIMf1X8KPkMrF/exec';
     
@@ -198,60 +198,111 @@
     // Load Leaderboard Data & Auto-Score
     function loadLeaderboard() {
         switchTab('board');
+        
+        // Update header dynamically to show Max Points
+        const headerScore = document.querySelector('.lb-header .lb-score');
+        if (headerScore) headerScore.innerHTML = '<span class="live-dot"></span>Pts (Max)';
+
         const lbBody = document.getElementById('leaderboard-body');
         lbBody.innerHTML = '<div style="padding: 30px; text-align: center; color: #666; font-weight: 600;">Fetching data from the ice... <span class="spin-puck">🏒</span></div>';
 
         fetch(scriptURL)
             .then(response => response.json())
             .then(data => {
-                const answerKey = data[1]; // Row 2 is the Answer Key
-                const liveStatus = data[2]; // Row 3 is the new Live Status
+                const answerKey = data[1]; // Row 2
+                const liveStatus = data[2]; // Row 3
 
-                // Players now start at data.slice(3) because of the new row!
                 let players = data.slice(3).map(row => {
                     let pScore = 0;
+                    let pPotential = 0;
                     let isPaid = row[19] ? true : false; 
+                    let playerPicks = [];
 
                     for (let i = 0; i < 8; i++) {
                         let wIdx = 3 + (i * 2); 
                         let gIdx = 4 + (i * 2); 
+                        let userW = row[wIdx];
+                        let userG = parseInt(row[gIdx]);
+                        let ansW = answerKey[wIdx];
+                        let ansG = answerKey[gIdx];
 
-                        if (answerKey[wIdx] && answerKey[wIdx] !== "" && row[wIdx] === answerKey[wIdx]) {
-                            pScore += 2;
+                        let sScore = 0;
+                        let potW = 2; // Assume max potential initially
+                        let potG = 1;
+
+                        let isSeriesOver = (ansW && ansW !== "");
+
+                        if (isSeriesOver) {
+                            // If series is over, potential drops down to exactly what they scored
+                            if (userW === ansW) { sScore += 2; potW = 2; } else { potW = 0; }
+                            if (userG == ansG) { sScore += 1; potG = 1; } else { potG = 0; }
+                        } else {
+                            // If ongoing, parse the live status to find mathematically dead picks
+                            let status = liveStatus[wIdx] || "";
+                            let match = status.match(/(\d+)\s*-\s*(\d+)/);
+                            
+                            if (match) {
+                                let s1 = parseInt(match[1]);
+                                let s2 = parseInt(match[2]);
+                                let gamesPlayed = s1 + s2;
+                                let maxWins = Math.max(s1, s2);
+                                let minTotalGames = gamesPlayed + (4 - maxWins); // Absolute minimum games left
+
+                                // Is their predicted games mathematically impossible?
+                                if (userG < minTotalGames) potG = 0;
+
+                                // Is their predicted winner mathematically eliminated?
+                                let userLosses = 0;
+                                if (status.toLowerCase().includes("tied")) {
+                                    userLosses = s1;
+                                } else if (status.includes(userW)) {
+                                    userLosses = s2; // If their team is named first, s2 is their losses
+                                } else {
+                                    userLosses = s1; // If the OTHER team is named, s1 is their losses
+                                }
+                                if (userLosses >= 4) potW = 0;
+                            }
                         }
-                        if (answerKey[gIdx] && answerKey[gIdx] !== "" && row[gIdx] == answerKey[gIdx]) {
-                            pScore += 1;
-                        }
+
+                        pScore += sScore;
+                        pPotential += (potW + potG);
+
+                        const matchups = ["CAR/OTT", "TB/MTL", "BUF/BOS", "PIT/PHI", "COL/LA", "DAL/MIN", "VGK/UTA", "EDM/ANA"];
+
+                        playerPicks.push({
+                            match: matchups[i],
+                            winner: userW,
+                            games: userG,
+                            status: liveStatus[wIdx] || "",
+                            potW: potW,
+                            potG: potG
+                        });
                     }
 
                     return {
                         alias: row[2], 
                         score: pScore,
+                        potential: pPotential,
                         paid: isPaid,
-                        picks: [
-                            { match: "CAR/OTT", winner: row[3], games: row[4], status: liveStatus[3] },
-                            { match: "TB/MTL", winner: row[5], games: row[6], status: liveStatus[5] },
-                            { match: "BUF/BOS", winner: row[7], games: row[8], status: liveStatus[7] },
-                            { match: "PIT/PHI", winner: row[9], games: row[10], status: liveStatus[9] },
-                            { match: "COL/LA", winner: row[11], games: row[12], status: liveStatus[11] },
-                            { match: "DAL/MIN", winner: row[13], games: row[14], status: liveStatus[13] },
-                            { match: "VGK/UTA", winner: row[15], games: row[16], status: liveStatus[15] },
-                            { match: "EDM/ANA", winner: row[17], games: row[18], status: liveStatus[17] }
-                        ]
+                        picks: playerPicks
                     };
                 });
 
                 players = players.filter(p => p.alias && p.alias !== "");
-                players.sort((a, b) => b.score - a.score);
+                
+                // SORTING UPGRADE: Sorts by actual score first, then breaks ties using POTENTIAL score!
+                players.sort((a, b) => b.score - a.score || b.potential - a.potential);
 
                 lbBody.innerHTML = '';
                 
                 players.forEach((player, index) => {
                     let picksHtml = '';
                     player.picks.forEach(p => {
-                        let text = p.winner ? `${p.winner} in ${p.games}` : "No Pick";
+                        // If potential is 0, we strike-through the pick to show it's mathematically dead!
+                        let textW = p.potW > 0 ? p.winner : `<span style="text-decoration: line-through; opacity: 0.4;">${p.winner}</span>`;
+                        let textG = p.potG > 0 ? `in ${p.games}` : `in <span style="text-decoration: line-through; opacity: 0.4;">${p.games}</span>`;
+                        let text = p.winner ? `${textW} ${textG}` : "No Pick";
                         
-                        // New Ticker-style Live Status Badge
                         let statusHtml = (p.status && p.status !== "") 
                             ? `<div class="status-badge">${p.status}</div>` 
                             : ``;
@@ -272,7 +323,8 @@
                         <div class="${rowClass}" onclick="toggleDetails(${index})">
                             <div class="lb-rank" style="font-size: ${index < 3 ? '1.5rem' : '1rem'};">${rankDisplay}</div>
                             <div class="lb-name">${player.alias}${paidBadge}</div>
-                            <div class="lb-score">${player.score}</div>
+                            
+                            <div class="lb-score">${player.score} <span style="font-size: 0.8rem; color: #888; font-weight: 600;">(${player.potential})</span></div>
                         </div>
                         <div class="lb-details" id="details-${index}">
                             <div class="picks-grid-summary">
