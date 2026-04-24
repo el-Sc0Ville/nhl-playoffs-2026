@@ -290,14 +290,13 @@
                     let rowClass = "lb-row";
                     let payoutBadge = "";
                     
-                    if (index === 0) { rankDisplay = '🥇'; rowClass += ' rank-1'; payoutBadge = `<div class="itm-badge">+$810</div>`; }
-                    else if (index === 1) { rankDisplay = '🥈'; rowClass += ' rank-2'; payoutBadge = `<div class="itm-badge">+$405</div>`; }
-                    else if (index === 2) { rankDisplay = '🥉'; rowClass += ' rank-3'; payoutBadge = `<div class="itm-badge">+$135</div>`; }
+                    // SMART TRIGGER: Only show medals and money if someone actually has points!
+                    let pointsOnBoard = players.length > 0 && players[0].score > 0;
 
-                    // Apply Eliminated styling if Drawing Dead
-                    if (isEliminated) {
-                        rowClass += ' eliminated-row';
-                        payoutBadge = `<div style="font-size: 0.8rem; margin-top: 4px;">💀 Dead</div>`;
+                    if (pointsOnBoard) {
+                        if (index === 0) { rankDisplay = '🥇'; rowClass += ' rank-1'; payoutBadge = `<div class="itm-badge">+$810</div>`; }
+                        else if (index === 1) { rankDisplay = '🥈'; rowClass += ' rank-2'; payoutBadge = `<div class="itm-badge">+$405</div>`; }
+                        else if (index === 2) { rankDisplay = '🥉'; rowClass += ' rank-3'; payoutBadge = `<div class="itm-badge">+$135</div>`; }
                     }
 
                     // "Perfect Bracket" Fire Icon
