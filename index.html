@@ -194,7 +194,7 @@
                 const answerKey = data[1]; // Row 2
                 const liveStatus = data[2]; // Row 3
 
-                let players = data.slice(3).map(row => {
+        let players = data.slice(3).map(row => {
                     let pScore = 0;
                     let pPotential = 0;
                     let playerPicks = [];
@@ -225,18 +225,29 @@
                                 let s2 = parseInt(match[2]);
                                 let gamesPlayed = s1 + s2;
                                 let maxWins = Math.max(s1, s2);
-                                let minTotalGames = gamesPlayed + (4 - maxWins); 
+                                
+                                // === INDEPENDENT GAME LOGIC ===
+                                if (maxWins >= 4) {
+                                    // A team hit 4 wins! The series is over. 
+                                    // If they didn't guess the EXACT games played, strike it out.
+                                    if (userG !== gamesPlayed) potG = 0;
+                                } else {
+                                    // Series still active. Strike out impossible short series.
+                                    let minTotalGames = gamesPlayed + (4 - maxWins); 
+                                    if (userG < minTotalGames) potG = 0;
+                                }
 
-                                if (userG < minTotalGames) potG = 0;
-
+                                // === INDEPENDENT WINNER LOGIC ===
                                 let userLosses = 0;
                                 if (status.toLowerCase().includes("tied")) {
                                     userLosses = s1;
-                                } else if (status.includes(userW)) {
-                                    userLosses = s2; 
+                                } else if (userW && status.includes(userW)) {
+                                    userLosses = s2; // Their team is named first, so s2 is their losses
                                 } else {
-                                    userLosses = s1; 
+                                    userLosses = s1; // The other team is named first, so s1 is their losses
                                 }
+                                
+                                // Strike out the team if they hit 4 losses
                                 if (userLosses >= 4) potW = 0;
                             }
                         }
