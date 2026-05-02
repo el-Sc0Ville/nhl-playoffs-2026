@@ -120,6 +120,13 @@
     </div>
 
     <div id="leaderboard-view">
+        
+        <div class="urgent-box" style="text-align: center; margin-top: 0; margin-bottom: 25px;">
+            <h3 style="margin-top: 0; color: var(--accent); font-weight: 900; font-size: 1.4rem;">🚨 CAR vs PHI Starts TONIGHT! 🚨</h3>
+            <p style="font-size: 1.05rem; color: #333; font-weight: 800; margin-bottom: 8px;">Puck drops at 8:00 PM EST.</p>
+            <p style="font-size: 0.95rem; color: #444; margin-top: 0; line-height: 1.4;"><strong>CHECK YOUR EMAIL</strong> and reply to the Commish with your pick for this series before 8 PM!</p>
+        </div>
+
         <div class="leaderboard-container">
             <div class="lb-header">
                 <div class="lb-rank">#</div>
@@ -164,7 +171,7 @@
 </div>
 
 <script>
-    // INJECTED SCRIPT URL HERE
+    // ⬇️ GOOGLE SCRIPT URL ⬇️
     const scriptURL = 'https://script.google.com/macros/s/AKfycbyXU0Vn2XDfP_lweHRgsx_H-UtjfMArXVwZA_0XHx3RtiRmdAGL5C0LIMf1X8KPkMrF/exec';
     
     // UI Tab Navigation
@@ -275,7 +282,9 @@
                 players = players.filter(p => p.alias && p.alias !== "");
                 players.sort((a, b) => b.score - a.score || b.potential - a.potential);
 
+                // Elimination logic variables
                 let cutoffScore = players.length >= 3 ? players[2].score : 0;
+                let futurePointsAvailable = 21; // 12 (R2) + 6 (R3) + 3 (Finals)
 
                 lbBody.innerHTML = '';
                 
@@ -291,7 +300,11 @@
                         picksHtml += `<div class="pick-item"><strong>${p.match}</strong>${statusHtml}<div>${text}</div></div>`;
                     });
 
-                    let isEliminated = player.potential < cutoffScore;
+                    // TRUE MATHEMATICAL ELIMINATION 
+                    // Compare their potential (+ all future round points) against the actual 3rd place score
+                    let trueMaxPotential = player.potential + futurePointsAvailable;
+                    let isEliminated = trueMaxPotential < cutoffScore;
+
                     let rankDisplay = index + 1;
                     let rowClass = "lb-row";
                     let payoutBadge = "";
@@ -306,7 +319,7 @@
 
                     if (isEliminated && pointsOnBoard) {
                         rowClass += ' eliminated-row';
-                        payoutBadge = `<div style="font-size: 0.8rem; margin-top: 4px;">💀 Dead</div>`;
+                        payoutBadge = `<div style="font-size: 0.8rem; margin-top: 4px; font-weight: 800; color: var(--accent);">💀 Dead</div>`;
                     }
 
                     let fireBadge = (player.potential === 24) ? `<span class="fire-icon" title="Perfect Potential!">🔥</span>` : '';
