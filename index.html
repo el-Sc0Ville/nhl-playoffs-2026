@@ -74,6 +74,7 @@
         .refresh-btn:hover { background: #333; transform: translateY(-2px); }
         .timestamp { text-align: center; font-size: 0.8rem; color: #888; margin-top: 10px; font-weight: 600; }
         .announcement-box { background: #f8f9fa; padding: 20px; border-radius: 12px; margin: 25px 0 10px; border-left: 5px solid var(--secondary); box-shadow: 0 4px 10px rgba(0,0,0,0.03); }
+        .urgent-box { background: #fff0f2; padding: 20px; border-radius: 12px; margin: 20px 0; border: 2px solid var(--accent); box-shadow: 0 4px 15px rgba(211, 47, 47, 0.15); }
     </style>
 </head>
 <body onload="loadLeaderboard()">
@@ -87,7 +88,7 @@
     
     <div class="nav-buttons">
         <button class="nav-btn" onclick="loadLeaderboard()" id="tab-board">Leaderboard</button>
-        <button class="nav-btn" onclick="switchTab('picks')" id="tab-picks">Status: CLOSED 🔒</button>
+        <button class="nav-btn" onclick="switchTab('picks')" id="tab-picks">Status: URGENT 🚨</button>
         <button class="nav-btn" onclick="switchTab('info')" id="tab-info">Rules & Info</button>
     </div>
 
@@ -135,9 +136,19 @@
     </div>
 
     <div id="picks-view">
-        <div class="info-content" style="text-align: center; border-top: 5px solid var(--primary);">
-            <h2 style="color: var(--primary); border-bottom: none;">🚫 Submissions are Closed</h2>
-            <p style="font-size: 1.1rem; color: #555; font-weight: 500;">The puck has dropped! All Round 1 brackets are now locked in and the scoring is live on the Leaderboard tab.</p>
+        <div class="info-content" style="text-align: center; border-top: 5px solid var(--accent);">
+            <h2 style="color: var(--accent); border-bottom: none; font-size: 1.8rem;">🚨 URGENT ACTION 🚨</h2>
+            
+            <div class="urgent-box">
+                <h3 style="margin-top: 0; color: var(--accent); font-weight: 900;">CAR vs PHI Starts TONIGHT!</h3>
+                <p style="font-size: 1.15rem; color: #333; font-weight: 800; margin-bottom: 10px;">Puck drops at 8:00 PM EST.</p>
+                <p style="font-size: 1rem; color: #444; line-height: 1.5;">Please <strong>CHECK YOUR EMAIL</strong> and reply to the Commish manually with your Series Winner and Total Games prediction for this specific matchup before 8 PM.</p>
+            </div>
+
+            <div class="announcement-box">
+                <p style="margin:0; font-weight: 900; color: var(--primary); font-size: 1.1rem;">📅 THE REST OF ROUND 2</p>
+                <p style="margin:8px 0 0; font-size: 1rem; color: #555; font-weight: 500;">This app will officially reopen for the remaining Round 2 matchups once the TB/MTL and VGK/UTA series conclude. Hang tight!</p>
+            </div>
         
             <div style="margin: 30px 0; padding: 25px 20px; border: 2px dashed #cfd8dc; border-radius: 16px; background: #f8fafc;">
                 <h3 style="margin-top: 0; color: #111; font-weight: 900;">Full Transparency 🔍</h3>
@@ -147,18 +158,13 @@
                     📊 View the Public Ledger
                 </a>
             </div>
-
-            <div class="announcement-box">
-                <p style="margin:0; font-weight: 900; color: var(--primary); font-size: 1.1rem;">📅 ROUND 2 ANNOUNCEMENT</p>
-                <p style="margin:8px 0 0; font-size: 1rem; color: #555; font-weight: 500;">Check back here immediately following the conclusion of Round 1 to submit your next set of picks!</p>
-            </div>
         </div>
     </div>
 
 </div>
 
 <script>
-    // ⬇️ PASTE YOUR GOOGLE SCRIPT URL BELOW ⬇️
+    // INJECTED SCRIPT URL HERE
     const scriptURL = 'https://script.google.com/macros/s/AKfycbyXU0Vn2XDfP_lweHRgsx_H-UtjfMArXVwZA_0XHx3RtiRmdAGL5C0LIMf1X8KPkMrF/exec';
     
     // UI Tab Navigation
@@ -191,10 +197,10 @@
         fetch(scriptURL)
             .then(response => response.json())
             .then(data => {
-                const answerKey = data[1]; // Row 2
-                const liveStatus = data[2]; // Row 3
+                const answerKey = data[1]; 
+                const liveStatus = data[2]; 
 
-        let players = data.slice(3).map(row => {
+                let players = data.slice(3).map(row => {
                     let pScore = 0;
                     let pPotential = 0;
                     let playerPicks = [];
@@ -228,11 +234,8 @@
                                 
                                 // === INDEPENDENT GAME LOGIC ===
                                 if (maxWins >= 4) {
-                                    // A team hit 4 wins! The series is over. 
-                                    // If they didn't guess the EXACT games played, strike it out.
                                     if (userG !== gamesPlayed) potG = 0;
                                 } else {
-                                    // Series still active. Strike out impossible short series.
                                     let minTotalGames = gamesPlayed + (4 - maxWins); 
                                     if (userG < minTotalGames) potG = 0;
                                 }
@@ -242,12 +245,11 @@
                                 if (status.toLowerCase().includes("tied")) {
                                     userLosses = s1;
                                 } else if (userW && status.includes(userW)) {
-                                    userLosses = s2; // Their team is named first, so s2 is their losses
+                                    userLosses = s2; 
                                 } else {
-                                    userLosses = s1; // The other team is named first, so s1 is their losses
+                                    userLosses = s1; 
                                 }
                                 
-                                // Strike out the team if they hit 4 losses
                                 if (userLosses >= 4) potW = 0;
                             }
                         }
@@ -271,11 +273,8 @@
                 });
 
                 players = players.filter(p => p.alias && p.alias !== "");
-                
-                // Sort by actual score, then break ties with potential score
                 players.sort((a, b) => b.score - a.score || b.potential - a.potential);
 
-                // Calculate the Elimination Cutoff (The actual score of the person currently in 3rd place)
                 let cutoffScore = players.length >= 3 ? players[2].score : 0;
 
                 lbBody.innerHTML = '';
@@ -283,7 +282,6 @@
                 players.forEach((player, index) => {
                     let picksHtml = '';
                     player.picks.forEach(p => {
-                        // UPGRADED "DEAD PICK" UI: Bold red with light red background
                         let textW = p.potW > 0 ? p.winner : `<span class="dead-pick">${p.winner}</span>`;
                         let textG = p.potG > 0 ? `in ${p.games}` : `in <span class="dead-pick">${p.games}</span>`;
                         let text = p.winner ? `${textW} <br> ${textG}` : "No Pick";
@@ -293,15 +291,11 @@
                         picksHtml += `<div class="pick-item"><strong>${p.match}</strong>${statusHtml}<div>${text}</div></div>`;
                     });
 
-                    // Check for Mathematical Elimination
                     let isEliminated = player.potential < cutoffScore;
-                    
-                    // Assign Medals, Row Highlighting, and Payout Badges (ITM)
                     let rankDisplay = index + 1;
                     let rowClass = "lb-row";
                     let payoutBadge = "";
                     
-                    // SMART TRIGGER: Only show medals and money if someone actually has points!
                     let pointsOnBoard = players.length > 0 && players[0].score > 0;
 
                     if (pointsOnBoard) {
@@ -310,7 +304,11 @@
                         else if (index === 2) { rankDisplay = '🥉'; rowClass += ' rank-3'; payoutBadge = `<div class="itm-badge">+$135</div>`; }
                     }
 
-                    // "Perfect Bracket" Fire Icon
+                    if (isEliminated && pointsOnBoard) {
+                        rowClass += ' eliminated-row';
+                        payoutBadge = `<div style="font-size: 0.8rem; margin-top: 4px;">💀 Dead</div>`;
+                    }
+
                     let fireBadge = (player.potential === 24) ? `<span class="fire-icon" title="Perfect Potential!">🔥</span>` : '';
 
                     lbBody.innerHTML += `
@@ -333,7 +331,6 @@
                     `;
                 });
 
-                // Update Timestamp
                 let now = new Date();
                 document.getElementById('last-updated').innerText = `Last Updated: ${now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
             })
