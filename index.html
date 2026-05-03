@@ -149,7 +149,7 @@
                 </div>
             </div>
 
-            <div class="matchup-card" style="opacity: 0.7; border: 2px dashed #ccc;">
+            <div class="matchup-card" style="opacity: 0.6; border: 2px dashed #ccc; filter: grayscale(30%);">
                 <div class="matchup-header" style="border-bottom: none; margin-bottom: 0;">
                     <h3 style="color: #666;">Carolina vs. Philadelphia</h3>
                     <span class="status-badge" style="background: #e0e4e8; color: #444; border: 1px solid #ccc;">🔒 Locked (Picks via Email)</span>
@@ -158,40 +158,56 @@
 
             <script>
                 const matchupsR2 = [
-                    { id: 2, team1: "Buffalo 🦬", val1: "BUF", team2: "TBD (TB/MTL)", val2: "TBD", conf: "East" },
-                    { id: 3, team1: "Colorado 🏔️", val1: "COL", team2: "Minnesota 🌲", val2: "MIN", conf: "West" },
-                    { id: 4, team1: "Anaheim 🦆", val1: "ANA", team2: "TBD (VGK/UTA)", val2: "TBD", conf: "West" }
+                    // M2: Buffalo vs TBD - LOCKED
+                    { id: 2, team1: "Buffalo 🦬", val1: "BUF", team2: "TBD (TB/MTL)", val2: "TBD", conf: "East", locked: true, lockMsg: "⏳ Awaiting Opponent" },
+                    // M3: Colorado vs Minnesota - OPEN FOR TONIGHT
+                    { id: 3, team1: "Colorado 🏔️", val1: "COL", team2: "Minnesota 🌲", val2: "MIN", conf: "West", locked: false },
+                    // M4: Anaheim vs TBD - LOCKED
+                    { id: 4, team1: "Anaheim 🦆", val1: "ANA", team2: "TBD (VGK/UTA)", val2: "TBD", conf: "West", locked: true, lockMsg: "⏳ Awaiting Opponent" }
                 ];
 
                 matchupsR2.forEach(m => {
-                    document.write(`
-                        <div class="matchup-card">
-                            <div class="matchup-header">
-                                <h3>${m.team1} vs. ${m.team2}</h3>
-                                <span class="conference-badge">${m.conf}</span>
-                            </div>
-                            <div class="pick-section">
-                                <h4>Series Winner:</h4>
-                                <div class="options-grid">
-                                    <label><input type="radio" name="M${m.id}_Winner" value="${m.val1}"><div class="radio-label">${m.team1}</div></label>
-                                    <label><input type="radio" name="M${m.id}_Winner" value="${m.val2}"><div class="radio-label">${m.team2}</div></label>
+                    if (m.locked) {
+                        // FADED "AWAITING OPPONENT" UI
+                        document.write(`
+                            <div class="matchup-card" style="opacity: 0.6; border: 2px dashed #ccc; filter: grayscale(30%);">
+                                <div class="matchup-header" style="border-bottom: none; margin-bottom: 0;">
+                                    <h3 style="color: #666;">${m.team1} vs. ${m.team2}</h3>
+                                    <span class="status-badge" style="background: #fff3cd; color: #856404; border: 1px solid #ffeeba;">${m.lockMsg}</span>
                                 </div>
                             </div>
-                            <div class="pick-section">
-                                <h4>Total Games:</h4>
-                                <div class="games-grid">
-                                    <label><input type="radio" name="M${m.id}_Games" value="4"><div class="radio-label">4</div></label>
-                                    <label><input type="radio" name="M${m.id}_Games" value="5"><div class="radio-label">5</div></label>
-                                    <label><input type="radio" name="M${m.id}_Games" value="6"><div class="radio-label">6</div></label>
-                                    <label><input type="radio" name="M${m.id}_Games" value="7"><div class="radio-label">7</div></label>
+                        `);
+                    } else {
+                        // OPEN MATCHUP UI
+                        document.write(`
+                            <div class="matchup-card">
+                                <div class="matchup-header">
+                                    <h3>${m.team1} vs. ${m.team2}</h3>
+                                    <span class="conference-badge">${m.conf}</span>
+                                </div>
+                                <div class="pick-section">
+                                    <h4>Series Winner:</h4>
+                                    <div class="options-grid">
+                                        <label><input type="radio" name="M${m.id}_Winner" value="${m.val1}"><div class="radio-label">${m.team1}</div></label>
+                                        <label><input type="radio" name="M${m.id}_Winner" value="${m.val2}"><div class="radio-label">${m.team2}</div></label>
+                                    </div>
+                                </div>
+                                <div class="pick-section">
+                                    <h4>Total Games:</h4>
+                                    <div class="games-grid">
+                                        <label><input type="radio" name="M${m.id}_Games" value="4"><div class="radio-label">4</div></label>
+                                        <label><input type="radio" name="M${m.id}_Games" value="5"><div class="radio-label">5</div></label>
+                                        <label><input type="radio" name="M${m.id}_Games" value="6"><div class="radio-label">6</div></label>
+                                        <label><input type="radio" name="M${m.id}_Games" value="7"><div class="radio-label">7</div></label>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    `);
+                        `);
+                    }
                 });
             </script>
 
-            <button type="submit">Lock In Round 2 🔒</button>
+            <button type="submit">Lock In Picks 🔒</button>
         </form>
         <div class="loading">Submitting your picks to the ice... 🧊</div>
         
