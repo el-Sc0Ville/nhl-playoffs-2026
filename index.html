@@ -158,8 +158,8 @@
 
             <script>
                 const matchupsR2 = [
-                    // M2: Colorado vs Minnesota - OPEN
-                    { id: 2, team1: "Colorado 🏔️", val1: "COL", team2: "Minnesota 🌲", val2: "MIN", conf: "West", locked: false },
+                    // M2: Colorado vs Minnesota - LOCKED TODAY
+                    { id: 2, team1: "Colorado 🏔️", val1: "COL", team2: "Minnesota 🌲", val2: "MIN", conf: "West", locked: true, lockMsg: "🔒 Locked (Puck Dropped)" },
                     // M3: Anaheim vs Vegas - OPEN
                     { id: 3, team1: "Anaheim 🦆", val1: "ANA", team2: "Vegas 🎰", val2: "VGK", conf: "West", locked: false },
                     // M4: Buffalo vs Montreal - OPEN
@@ -211,7 +211,7 @@
         
         <div class="success-message" id="success-msg">
             <h2>🚨 HE SCORES! 🚨</h2>
-            <p>Your Round 2 picks are officially locked in.</p>
+            <p>Your picks are officially locked in.</p>
             <button onclick="document.getElementById('success-msg').style.display='none'; loadLeaderboard();" style="padding: 12px 24px; margin-top: 10px; background: var(--primary); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%;">View Leaderboard</button>
         </div>
     </div>
@@ -273,7 +273,6 @@
                         let potG = 1;
                         let isSeriesOver = (ansW && ansW !== "");
 
-                        // BUG FIX: Cleaned up nested logic here!
                         if (!userW || userW === "") {
                             // If they haven't picked yet, they keep potential UNLESS the series is over
                             if (isSeriesOver) {
@@ -336,6 +335,9 @@
 
                 players = players.filter(p => p.alias && p.alias !== "");
                 players.sort((a, b) => b.score - a.score || b.potential - a.potential);
+                
+                // Store globally so we can check against it in the form submit validation
+                window.poolPlayers = players;
 
                 // 9 future points available in Rounds 3 and 4
                 let cutoffScore = players.length >= 3 ? players[2].score : 0;
@@ -412,10 +414,33 @@
     form.addEventListener('submit', e => {
         e.preventDefault();
         
-        // OPTIMIZATION: Check native HTML required form validity before firing fetch!
+        // Check native HTML required form validity before firing fetch!
         if (!form.checkValidity()) {
             form.reportValidity();
             return;
+        }
+
+        // DOUBLE-SUBMISSION SMART BLOCKER
+        const submittedAlias = form.elements['Alias'].value.trim().toLowerCase();
+        const existingPlayer = window.poolPlayers ? window.poolPlayers.find(p => p.alias.toLowerCase() === submittedAlias) : null;
+
+        if (existingPlayer) {
+            let alreadyPicked = false;
+            // Get IDs of matchups currently NOT locked
+            const openMatchupIds = matchupsR2.filter(m => !m.locked).map(m => m.id);
+            
+            // Check if player has a pick logged for any of the currently open matchups
+            openMatchupIds.forEach(id => {
+                let pickIndex = id - 1; // Array index: M2 is index 1, M3 is index 2, M4 is index 3
+                if (existingPlayer.picks[pickIndex] && existingPlayer.picks[pickIndex].winner !== "") {
+                    alreadyPicked = true;
+                }
+            });
+
+            if (alreadyPicked) {
+                alert("🚨 Penalty on the play! It looks like you've already submitted picks for these matchups. If you need an audible, please contact the Commish directly.");
+                return;
+            }
         }
         
         const submitButton = form.querySelector('button[type="submit"]');
