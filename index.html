@@ -406,7 +406,7 @@
             });
     }
 
-    // FORM SUBMISSION LOGIC
+// FORM SUBMISSION LOGIC
     const form = document.forms['submit-to-google-sheet'];
     const loading = document.querySelector('.loading');
     const successMsg = document.getElementById('success-msg');
@@ -414,43 +414,31 @@
     form.addEventListener('submit', e => {
         e.preventDefault();
         
-        // Check native HTML required form validity before firing fetch!
+        // Native HTML validation check
         if (!form.checkValidity()) {
             form.reportValidity();
             return;
         }
-
-        // DOUBLE-SUBMISSION SMART BLOCKER
-        const submittedAlias = form.elements['Alias'].value.trim().toLowerCase();
-        const existingPlayer = window.poolPlayers ? window.poolPlayers.find(p => p.alias.toLowerCase() === submittedAlias) : null;
-
-        if (existingPlayer) {
-            let alreadyPicked = false;
-            // Get IDs of matchups currently NOT locked
-            const openMatchupIds = matchupsR2.filter(m => !m.locked).map(m => m.id);
-            
-            // Check if player has a pick logged for any of the currently open matchups
-            openMatchupIds.forEach(id => {
-                let pickIndex = id - 1; // Array index: M2 is index 1, M3 is index 2, M4 is index 3
-                if (existingPlayer.picks[pickIndex] && existingPlayer.picks[pickIndex].winner !== "") {
-                    alreadyPicked = true;
-                }
-            });
-
-            if (alreadyPicked) {
-                alert("🚨 Penalty on the play! It looks like you've already submitted picks for these matchups. If you need an audible, please contact the Commish directly.");
-                return;
-            }
-        }
         
         const submitButton = form.querySelector('button[type="submit"]');
         submitButton.disabled = true;
-        submitButton.innerText = "Processing...";
+        submitButton.innerText = "Checking with the refs...";
         loading.style.display = 'block';
 
         fetch(scriptURL, { method: 'POST', body: new FormData(form)})
-            .then(response => {
+            .then(response => response.json())
+            .then(data => {
                 loading.style.display = 'none';
+                
+                // Catch the Bouncer's Rejection!
+                if (data.result === 'duplicate_error') {
+                    submitButton.disabled = false;
+                    submitButton.innerText = "Lock In Picks 🔒";
+                    alert("🚨 Penalty on the play! You already have picks on file for these matchups. If you need an audible, contact the Commish directly.");
+                    return;
+                }
+
+                // Otherwise, success!
                 form.style.display = 'none';
                 successMsg.style.display = 'block';
                 form.reset();
@@ -459,7 +447,7 @@
                 submitButton.disabled = false;
                 submitButton.innerText = "Lock In Picks 🔒";
                 loading.style.display = 'none';
-                alert("Something went wrong. Please try again!");
+                alert("Something went wrong with the connection. Please try again!");
             });
     });
 </script>
