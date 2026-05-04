@@ -278,6 +278,14 @@
                         } else {
                             let isSeriesOver = (ansW && ansW !== "");
 
+                        if (!userW || userW === "") {
+                            // If they haven't picked yet, they keep the 3 points of potential UNLESS the series is already over
+                            if (isSeriesOver) {
+                                potW = 0; potG = 0; 
+                            } else {
+                                potW = 2; potG = 1; 
+                            }
+                        } else {
                             if (isSeriesOver) {
                                 if (userW === ansW) { sScore += 2; potW = 2; } else { potW = 0; }
                                 if (userG == ansG) { sScore += 1; potG = 1; } else { potG = 0; }
