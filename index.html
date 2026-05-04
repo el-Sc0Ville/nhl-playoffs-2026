@@ -158,12 +158,12 @@
 
             <script>
                 const matchupsR2 = [
-                    // M2: Buffalo vs TBD - STILL LOCKED
-                    { id: 2, team1: "Buffalo 🦬", val1: "BUF", team2: "TBD (TB/MTL)", val2: "TBD", conf: "East", locked: true, lockMsg: "⏳ Awaiting Opponent" },
-                    // M3: Colorado vs Minnesota - OPEN
-                    { id: 3, team1: "Colorado 🏔️", val1: "COL", team2: "Minnesota 🌲", val2: "MIN", conf: "West", locked: false },
-                    // M4: Anaheim vs Vegas - NOW OPEN!
-                    { id: 4, team1: "Anaheim 🦆", val1: "ANA", team2: "Vegas 🎰", val2: "VGK", conf: "West", locked: false }
+                    // M2: Colorado vs Minnesota - OPEN
+                    { id: 2, team1: "Colorado 🏔️", val1: "COL", team2: "Minnesota 🌲", val2: "MIN", conf: "West", locked: false },
+                    // M3: Anaheim vs Vegas - OPEN
+                    { id: 3, team1: "Anaheim 🦆", val1: "ANA", team2: "Vegas 🎰", val2: "VGK", conf: "West", locked: false },
+                    // M4: Buffalo vs TBD - LOCKED
+                    { id: 4, team1: "Buffalo 🦬", val1: "BUF", team2: "TBD (TB/MTL)", val2: "TBD", conf: "East", locked: true, lockMsg: "⏳ Awaiting Opponent" }
                 ];
 
                 matchupsR2.forEach(m => {
@@ -317,7 +317,7 @@
                         pScore += sScore;
                         pPotential += (potW + potG);
 
-                        const matchups = ["CAR/PHI", "BUF/TBD", "COL/MIN", "ANA/VGK"];
+                        const matchups = ["CAR/PHI", "COL/MIN", "ANA/VGK", "BUF/TBD"];
 
                         playerPicks.push({
                             match: matchups[i],
