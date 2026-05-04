@@ -156,13 +156,13 @@
                 </div>
             </div>
 
-          <script>
+            <script>
                 const matchupsR2 = [
                     // M2: Colorado vs Minnesota - OPEN
                     { id: 2, team1: "Colorado 🏔️", val1: "COL", team2: "Minnesota 🌲", val2: "MIN", conf: "West", locked: false },
                     // M3: Anaheim vs Vegas - OPEN
                     { id: 3, team1: "Anaheim 🦆", val1: "ANA", team2: "Vegas 🎰", val2: "VGK", conf: "West", locked: false },
-                    // M4: Buffalo vs Montreal - NOW OPEN!
+                    // M4: Buffalo vs Montreal - OPEN
                     { id: 4, team1: "Buffalo 🦬", val1: "BUF", team2: "Montreal 🏆", val2: "MTL", conf: "East", locked: false }
                 ];
 
@@ -186,14 +186,14 @@
                                 <div class="pick-section">
                                     <h4>Series Winner:</h4>
                                     <div class="options-grid">
-                                        <label><input type="radio" name="M${m.id}_Winner" value="${m.val1}"><div class="radio-label">${m.team1}</div></label>
+                                        <label><input type="radio" name="M${m.id}_Winner" value="${m.val1}" required><div class="radio-label">${m.team1}</div></label>
                                         <label><input type="radio" name="M${m.id}_Winner" value="${m.val2}"><div class="radio-label">${m.team2}</div></label>
                                     </div>
                                 </div>
                                 <div class="pick-section">
                                     <h4>Total Games:</h4>
                                     <div class="games-grid">
-                                        <label><input type="radio" name="M${m.id}_Games" value="4"><div class="radio-label">4</div></label>
+                                        <label><input type="radio" name="M${m.id}_Games" value="4" required><div class="radio-label">4</div></label>
                                         <label><input type="radio" name="M${m.id}_Games" value="5"><div class="radio-label">5</div></label>
                                         <label><input type="radio" name="M${m.id}_Games" value="6"><div class="radio-label">6</div></label>
                                         <label><input type="radio" name="M${m.id}_Games" value="7"><div class="radio-label">7</div></label>
@@ -219,7 +219,7 @@
 </div>
 
 <script>
-    // ⬇️ PASTE YOUR GOOGLE SCRIPT URL BELOW ⬇️
+    // ⬇️ GOOGLE SCRIPT URL ⬇️
     const scriptURL = 'https://script.google.com/macros/s/AKfycbyXU0Vn2XDfP_lweHRgsx_H-UtjfMArXVwZA_0XHx3RtiRmdAGL5C0LIMf1X8KPkMrF/exec';
     
     function switchTab(tabId) {
@@ -271,15 +271,11 @@
                         let sScore = 0;
                         let potW = 2; 
                         let potG = 1;
+                        let isSeriesOver = (ansW && ansW !== "");
 
-                        // If they haven't submitted these picks yet, they have 0 potential until they do.
+                        // BUG FIX: Cleaned up nested logic here!
                         if (!userW || userW === "") {
-                            potW = 0; potG = 0;
-                        } else {
-                            let isSeriesOver = (ansW && ansW !== "");
-
-                        if (!userW || userW === "") {
-                            // If they haven't picked yet, they keep the 3 points of potential UNLESS the series is already over
+                            // If they haven't picked yet, they keep potential UNLESS the series is over
                             if (isSeriesOver) {
                                 potW = 0; potG = 0; 
                             } else {
@@ -323,7 +319,7 @@
                         pScore += sScore;
                         pPotential += (potW + potG);
 
-                            const matchups = ["CAR/PHI", "COL/MIN", "ANA/VGK", "BUF/MTL"];
+                        const matchups = ["CAR/PHI", "COL/MIN", "ANA/VGK", "BUF/MTL"];
 
                         playerPicks.push({
                             match: matchups[i],
@@ -416,6 +412,12 @@
     form.addEventListener('submit', e => {
         e.preventDefault();
         
+        // OPTIMIZATION: Check native HTML required form validity before firing fetch!
+        if (!form.checkValidity()) {
+            form.reportValidity();
+            return;
+        }
+        
         const submitButton = form.querySelector('button[type="submit"]');
         submitButton.disabled = true;
         submitButton.innerText = "Processing...";
@@ -430,7 +432,7 @@
             })
             .catch(error => {
                 submitButton.disabled = false;
-                submitButton.innerText = "Lock In Round 2 🔒";
+                submitButton.innerText = "Lock In Picks 🔒";
                 loading.style.display = 'none';
                 alert("Something went wrong. Please try again!");
             });
