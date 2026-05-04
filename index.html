@@ -120,7 +120,12 @@
                 ⏪ View Round 1 Archive
             </a>
         </div>
-
+        
+    <div class="urgent-box" style="text-align: center; margin-top: 0; margin-bottom: 25px; border-color: var(--secondary); background: #e6f4ff; box-shadow: 0 4px 15px rgba(0, 118, 182, 0.15);">
+            <h3 style="margin-top: 0; color: var(--secondary); font-weight: 900; font-size: 1.3rem;">🚨 The Board is Open!</h3>
+            <p style="font-size: 1rem; color: #333; margin-top: 0; line-height: 1.4;"><strong>ANA vs VGK</strong> and <strong>BUF vs MTL</strong> are officially set. If you haven't already done so, hit the "Make Picks" tab to lock them in!</p>
+        </div>
+        
         <div class="leaderboard-container">
             <div class="lb-header">
                 <div class="lb-rank">#</div>
@@ -386,7 +391,7 @@
                             </div>
                             <div class="lb-score">
                                 <span class="score-actual">${player.score}</span>
-                                <span class="score-potential">Max: ${player.potential}</span>
+                                <span class="score-potential">Max (Thru R2): ${player.potential}</span>
                             </div>
                         </div>
                         <div class="lb-details" id="details-${index}">
@@ -430,11 +435,19 @@
             .then(data => {
                 loading.style.display = 'none';
                 
-                // Catch the Bouncer's Rejection!
+                // Catch the Bouncer's Duplicate Rejection!
                 if (data.result === 'duplicate_error') {
                     submitButton.disabled = false;
                     submitButton.innerText = "Lock In Picks 🔒";
                     alert("🚨 Penalty on the play! You already have picks on file for these matchups. If you need an audible, contact the Commish directly.");
+                    return;
+                }
+
+                // Catch the Bouncer's Unknown Alias Rejection!
+                if (data.result === 'unknown_alias_error') {
+                    submitButton.disabled = false;
+                    submitButton.innerText = "Lock In Picks 🔒";
+                    alert("🚨 Invalid Alias! We couldn't find that name in the system. Please use the EXACT same Alias you used in Round 1.");
                     return;
                 }
 
