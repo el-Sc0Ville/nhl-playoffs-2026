@@ -115,15 +115,18 @@
 
     <div id="leaderboard-view">
         
-        <div style="text-align: center; margin-bottom: 20px;">
-            <a href="https://docs.google.com/spreadsheets/d/e/2PACX-1vR-Ls99A8-JQADXf22rOwZJR3tHX59RJnw-oEOz16Jk078soKaTL8z9PBW8w4U3r9gdHClnwymLew_f/pubhtml?gid=1496785778&single=true" target="_blank" style="background: #e0e4e8; color: #444; padding: 10px 20px; text-decoration: none; border-radius: 8px; font-weight: 800; font-size: 0.9rem;">
-                ⏪ View Round 1 Archive
+    <div style="text-align: center; margin-bottom: 20px; display: flex; justify-content: center; gap: 12px; flex-wrap: wrap;">
+            <a href="https://docs.google.com/spreadsheets/d/e/2PACX-1vR-Ls99A8-JQADXf22rOwZJR3tHX59RJnw-oEOz16Jk078soKaTL8z9PBW8w4U3r9gdHClnwymLew_f/pubhtml?gid=1496785778&single=true" target="_blank" style="background: #e0e4e8; color: #444; padding: 10px 20px; text-decoration: none; border-radius: 8px; font-weight: 800; font-size: 0.9rem; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+                ⏪ R1 Archive
+            </a>
+            <a href="https://docs.google.com/spreadsheets/d/e/2PACX-1vR-Ls99A8-JQADXf22rOwZJR3tHX59RJnw-oEOz16Jk078soKaTL8z9PBW8w4U3r9gdHClnwymLew_f/pubhtml?gid=1543007548&single=true" target="_blank" style="background: var(--secondary); color: white; padding: 10px 20px; text-decoration: none; border-radius: 8px; font-weight: 800; font-size: 0.9rem; box-shadow: 0 2px 8px rgba(0, 118, 182, 0.3);">
+                📊 R2 Public Ledger
             </a>
         </div>
         
     <div class="urgent-box" style="text-align: center; margin-top: 0; margin-bottom: 25px; border-color: var(--secondary); background: #e6f4ff; box-shadow: 0 4px 15px rgba(0, 118, 182, 0.15);">
-            <h3 style="margin-top: 0; color: var(--secondary); font-weight: 900; font-size: 1.3rem;">🚨 The Board is Open!</h3>
-            <p style="font-size: 1rem; color: #333; margin-top: 0; line-height: 1.4;"><strong>ANA vs VGK</strong> and <strong>BUF vs MTL</strong> are officially set. If you haven't already done so, hit the "Make Picks" tab to lock them in!</p>
+            <h3 style="margin-top: 0; color: var(--secondary); font-weight: 900; font-size: 1.3rem;">🚨 Last Call for Round 2!</h3>
+            <p style="font-size: 1rem; color: #333; margin-top: 0; line-height: 1.4;"><strong>BUF vs MTL</strong> is the final open matchup. If you haven't already done so, hit the "Make Picks" tab to lock it in before puck drop!</p>
         </div>
         
         <div class="leaderboard-container">
@@ -163,10 +166,10 @@
 
             <script>
                 const matchupsR2 = [
-                    // M2: Colorado vs Minnesota - LOCKED TODAY
+                    // M2: Colorado vs Minnesota - LOCKED
                     { id: 2, team1: "Colorado 🏔️", val1: "COL", team2: "Minnesota 🌲", val2: "MIN", conf: "West", locked: true, lockMsg: "🔒 Locked (Puck Dropped)" },
-                    // M3: Anaheim vs Vegas - OPEN
-                    { id: 3, team1: "Anaheim 🦆", val1: "ANA", team2: "Vegas 🎰", val2: "VGK", conf: "West", locked: false },
+                    // M3: Anaheim vs Vegas - LOCKED TODAY
+                    { id: 3, team1: "Anaheim 🦆", val1: "ANA", team2: "Vegas 🎰", val2: "VGK", conf: "West", locked: true, lockMsg: "🔒 Locked (Puck Dropped)" },
                     // M4: Buffalo vs Montreal - OPEN
                     { id: 4, team1: "Buffalo 🦬", val1: "BUF", team2: "Montreal 🏆", val2: "MTL", conf: "East", locked: false }
                 ];
