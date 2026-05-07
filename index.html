@@ -96,9 +96,15 @@
     </div>
 
     <div id="info-view" class="info-content">
-        <h2>Round 2 is Here 🧊</h2>
-        <p>The field has been cut in half. Scores carry over from Round 1.</p>
+        <h2>The Mid-Playoff Check-In 🧊</h2>
         
+        <h3>The Buy-In & Points System 💰📈</h3>
+        <p>A quick reminder: Your $50 entry fee covers you for the <strong>entire playoffs</strong>. All points you earn <strong>carry over</strong> from round to round! You are never truly mathematically out until the final buzzer sounds.</p>
+        <ul style="padding-left: 20px; margin-bottom: 20px;">
+            <li style="margin-bottom: 10px;"><strong>2 Points</strong> for correctly picking the Series Winner.</li>
+            <li><strong>1 Bonus Point</strong> for correctly picking the exact number of games the series lasts.</li>
+        </ul>
+
         <h3>Prizes & Payouts ($1,350 Pot) 🏆</h3>
         <ul style="padding-left: 20px; margin-bottom: 20px; font-size: 1.1rem;">
             <li style="margin-bottom: 10px;">🥇 <strong>1st Place (60%):</strong> $810</li>
@@ -106,16 +112,13 @@
             <li>🥉 <strong>3rd Place (10%):</strong> $135</li>
         </ul>
 
-        <h3>The Scoring System 📈</h3>
-        <ul style="padding-left: 20px; margin-bottom: 20px;">
-            <li style="margin-bottom: 10px;"><strong>2 Points</strong> for correctly picking the Series Winner.</li>
-            <li><strong>1 Bonus Point</strong> for correctly picking the exact number of games the series lasts.</li>
-        </ul>
+        <h3>Full Transparency 🔍</h3>
+        <p>We run a clean book. Use the <strong>Public Ledger</strong> buttons on the Leaderboard tab to view the raw, timestamped data from every single player in the pool (emails are hidden for privacy).</p>
     </div>
 
     <div id="leaderboard-view">
         
-    <div style="text-align: center; margin-bottom: 20px; display: flex; justify-content: center; gap: 12px; flex-wrap: wrap;">
+        <div style="text-align: center; margin-bottom: 20px; display: flex; justify-content: center; gap: 12px; flex-wrap: wrap;">
             <a href="https://docs.google.com/spreadsheets/d/e/2PACX-1vR-Ls99A8-JQADXf22rOwZJR3tHX59RJnw-oEOz16Jk078soKaTL8z9PBW8w4U3r9gdHClnwymLew_f/pubhtml?gid=1496785778&single=true" target="_blank" style="background: #e0e4e8; color: #444; padding: 10px 20px; text-decoration: none; border-radius: 8px; font-weight: 800; font-size: 0.9rem; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
                 ⏪ R1 Archive
             </a>
@@ -123,12 +126,12 @@
                 📊 R2 Public Ledger
             </a>
         </div>
-        
-    <div class="urgent-box" style="text-align: center; margin-top: 0; margin-bottom: 25px; border-color: var(--secondary); background: #e6f4ff; box-shadow: 0 4px 15px rgba(0, 118, 182, 0.15);">
-            <h3 style="margin-top: 0; color: var(--secondary); font-weight: 900; font-size: 1.3rem;">🚨 Last Call for Round 2!</h3>
-            <p style="font-size: 1rem; color: #333; margin-top: 0; line-height: 1.4;"><strong>BUF vs MTL</strong> is the final open matchup. If you haven't already done so, hit the "Make Picks" tab to lock it in before puck drop!</p>
+
+        <div class="urgent-box" style="text-align: center; margin-top: 0; margin-bottom: 25px; border-color: var(--primary); background: #f8f9fa; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);">
+            <h3 style="margin-top: 0; color: var(--primary); font-weight: 900; font-size: 1.3rem;">🔒 Round 2 is Officially Locked!</h3>
+            <p style="font-size: 1rem; color: #444; margin-top: 0; line-height: 1.4;">The puck has dropped on all matchups. Tap a player below to view their active bracket, and keep an eye on the <strong>Make Picks</strong> tab for Round 3 announcements.</p>
         </div>
-        
+
         <div class="leaderboard-container">
             <div class="lb-header">
                 <div class="lb-rank">#</div>
@@ -144,52 +147,60 @@
     </div>
 
     <div id="picks-view">
-        <form name="submit-to-google-sheet" novalidate>
-            <div class="info-card">
-                <p style="margin-top: 0; color: var(--accent); font-weight: bold;">⚠️ Please use the EXACT same Alias you used in Round 1 so the Commish can match your rows!</p>
-                <div class="input-group">
-                    <label>Email Address</label>
-                    <input type="email" name="Email" required>
-                </div>
-                <div class="input-group">
-                    <label>Alias / Nickname</label>
-                    <input type="text" name="Alias" required>
-                </div>
+        <form name="submit-to-google-sheet" novalidate id="picks-form">
+            
+            <div class="urgent-box" style="margin-top: 0; border-color: var(--accent); background: #fff0f2;">
+                <h3 style="margin-top: 0; color: var(--accent); font-weight: 900;">🚨 ROUND 3 PREP ALERT</h3>
+                <p style="font-size: 1rem; color: #333; line-height: 1.5; margin-bottom: 0;">NHL scheduling is chaotic. <strong>Round 3 series may open for picks here BEFORE Round 2 completely finishes.</strong> Check back frequently so you don't miss a puck drop!</p>
             </div>
 
-            <div class="matchup-card" style="opacity: 0.6; border: 2px dashed #ccc; filter: grayscale(30%);">
-                <div class="matchup-header" style="border-bottom: none; margin-bottom: 0;">
-                    <h3 style="color: #666;">Carolina vs. Philadelphia</h3>
-                    <span class="status-badge" style="background: #e0e4e8; color: #444; border: 1px solid #ccc;">🔒 Locked (Picks via Email)</span>
+            <div id="form-inputs" style="display: none;">
+                <div class="info-card">
+                    <p style="margin-top: 0; color: var(--accent); font-weight: bold;">⚠️ Please use the EXACT same Alias you used in Round 1!</p>
+                    <div class="input-group">
+                        <label>Email Address</label>
+                        <input type="email" name="Email">
+                    </div>
+                    <div class="input-group">
+                        <label>Alias / Nickname</label>
+                        <input type="text" name="Alias">
+                    </div>
                 </div>
             </div>
 
             <script>
-                const matchupsR2 = [
-                    // M2: Colorado vs Minnesota - LOCKED
-                    { id: 2, team1: "Colorado 🏔️", val1: "COL", team2: "Minnesota 🌲", val2: "MIN", conf: "West", locked: true, lockMsg: "🔒 Locked (Puck Dropped)" },
-                    // M3: Anaheim vs Vegas - LOCKED TODAY
-                    { id: 3, team1: "Anaheim 🦆", val1: "ANA", team2: "Vegas 🎰", val2: "VGK", conf: "West", locked: true, lockMsg: "🔒 Locked (Puck Dropped)" },
-                    // M4: Buffalo vs Montreal - OPEN
-                    { id: 4, team1: "Buffalo 🦬", val1: "BUF", team2: "Montreal 🏆", val2: "MTL", conf: "East", locked: false }
+                // ALL MATCHUPS R2 & R3 PLACEHOLDERS
+                const matchupsForm = [
+                    // ROUND 2 (LOCKED)
+                    { id: 1, team1: "Carolina 🌪️", val1: "CAR", team2: "Philadelphia 🪽", val2: "PHI", conf: "East", locked: true, lockMsg: "🔒 R2 Locked" },
+                    { id: 2, team1: "Colorado 🏔️", val1: "COL", team2: "Minnesota 🌲", val2: "MIN", conf: "West", locked: true, lockMsg: "🔒 R2 Locked" },
+                    { id: 3, team1: "Anaheim 🦆", val1: "ANA", team2: "Vegas 🎰", val2: "VGK", conf: "West", locked: true, lockMsg: "🔒 R2 Locked" },
+                    { id: 4, team1: "Buffalo 🦬", val1: "BUF", team2: "Montreal 🏆", val2: "MTL", conf: "East", locked: true, lockMsg: "🔒 R2 Locked" },
+                    
+                    // ROUND 3 (UPCOMING PLACEHOLDERS)
+                    { id: 5, team1: "TBD", val1: "TBD1", team2: "TBD", val2: "TBD2", conf: "East Final", locked: true, lockMsg: "⏳ Awaiting R2 Results" },
+                    { id: 6, team1: "TBD", val1: "TBD3", team2: "TBD", val2: "TBD4", conf: "West Final", locked: true, lockMsg: "⏳ Awaiting R2 Results" }
                 ];
 
-                matchupsR2.forEach(m => {
+                let hasOpenMatchups = false;
+
+                matchupsForm.forEach(m => {
                     if (m.locked) {
                         document.write(`
                             <div class="matchup-card" style="opacity: 0.6; border: 2px dashed #ccc; filter: grayscale(30%);">
                                 <div class="matchup-header" style="border-bottom: none; margin-bottom: 0;">
                                     <h3 style="color: #666;">${m.team1} vs. ${m.team2}</h3>
-                                    <span class="status-badge" style="background: #fff3cd; color: #856404; border: 1px solid #ffeeba;">${m.lockMsg}</span>
+                                    <span class="status-badge" style="background: #e0e4e8; color: #444; border: 1px solid #ccc;">${m.lockMsg}</span>
                                 </div>
                             </div>
                         `);
                     } else {
+                        hasOpenMatchups = true;
                         document.write(`
                             <div class="matchup-card">
                                 <div class="matchup-header">
                                     <h3>${m.team1} vs. ${m.team2}</h3>
-                                    <span class="conference-badge">${m.conf}</span>
+                                    <span class="conference-badge" style="background: var(--secondary); color: white;">${m.conf}</span>
                                 </div>
                                 <div class="pick-section">
                                     <h4>Series Winner:</h4>
@@ -211,9 +222,15 @@
                         `);
                     }
                 });
+
+                // Show form inputs and submit button ONLY if there are open games
+                if (hasOpenMatchups) {
+                    document.getElementById('form-inputs').style.display = 'block';
+                    document.getElementById('form-inputs').querySelectorAll('input').forEach(i => i.required = true);
+                    document.write(`<button type="submit" id="submit-btn">Lock In Picks 🔒</button>`);
+                }
             </script>
 
-            <button type="submit">Lock In Picks 🔒</button>
         </form>
         <div class="loading">Submitting your picks to the ice... 🧊</div>
         
@@ -268,6 +285,7 @@
                     let pPotential = r1Score;
                     let playerPicks = [];
 
+                    // Keep this exactly at 4 so it only pulls the active R2 matchups for scoring
                     for (let i = 0; i < 4; i++) {
                         let wIdx = 3 + (i * 2); 
                         let gIdx = 4 + (i * 2); 
@@ -282,7 +300,6 @@
                         let isSeriesOver = (ansW && ansW !== "");
 
                         if (!userW || userW === "") {
-                            // If they haven't picked yet, they keep potential UNLESS the series is over
                             if (isSeriesOver) {
                                 potW = 0; potG = 0; 
                             } else {
@@ -344,10 +361,8 @@
                 players = players.filter(p => p.alias && p.alias !== "");
                 players.sort((a, b) => b.score - a.score || b.potential - a.potential);
                 
-                // Store globally so we can check against it in the form submit validation
                 window.poolPlayers = players;
 
-                // 9 future points available in Rounds 3 and 4
                 let cutoffScore = players.length >= 3 ? players[2].score : 0;
                 let futurePointsAvailable = 9; 
 
@@ -414,58 +429,75 @@
             });
     }
 
-// FORM SUBMISSION LOGIC
     const form = document.forms['submit-to-google-sheet'];
     const loading = document.querySelector('.loading');
     const successMsg = document.getElementById('success-msg');
 
-    form.addEventListener('submit', e => {
-        e.preventDefault();
-        
-        // Native HTML validation check
-        if (!form.checkValidity()) {
-            form.reportValidity();
-            return;
-        }
-        
-        const submitButton = form.querySelector('button[type="submit"]');
-        submitButton.disabled = true;
-        submitButton.innerText = "Checking with the refs...";
-        loading.style.display = 'block';
+    if (form) {
+        form.addEventListener('submit', e => {
+            e.preventDefault();
+            
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
 
-        fetch(scriptURL, { method: 'POST', body: new FormData(form)})
-            .then(response => response.json())
-            .then(data => {
-                loading.style.display = 'none';
+            const submittedAlias = form.elements['Alias'].value.trim().toLowerCase();
+            const existingPlayer = window.poolPlayers ? window.poolPlayers.find(p => p.alias.toLowerCase() === submittedAlias) : null;
+
+            if (existingPlayer) {
+                let alreadyPicked = false;
+                const openMatchupIds = matchupsForm.filter(m => !m.locked).map(m => m.id);
                 
-                // Catch the Bouncer's Duplicate Rejection!
-                if (data.result === 'duplicate_error') {
-                    submitButton.disabled = false;
-                    submitButton.innerText = "Lock In Picks 🔒";
-                    alert("🚨 Penalty on the play! You already have picks on file for these matchups. If you need an audible, contact the Commish directly.");
+                openMatchupIds.forEach(id => {
+                    let pickIndex = id - 1; 
+                    if (existingPlayer.picks[pickIndex] && existingPlayer.picks[pickIndex].winner !== "") {
+                        alreadyPicked = true;
+                    }
+                });
+
+                if (alreadyPicked) {
+                    alert("🚨 Penalty on the play! It looks like you've already submitted picks for these matchups. If you need an audible, please contact the Commish directly.");
                     return;
                 }
+            }
+            
+            const submitButton = document.getElementById('submit-btn');
+            submitButton.disabled = true;
+            submitButton.innerText = "Checking with the refs...";
+            loading.style.display = 'block';
 
-                // Catch the Bouncer's Unknown Alias Rejection!
-                if (data.result === 'unknown_alias_error') {
+            fetch(scriptURL, { method: 'POST', body: new FormData(form)})
+                .then(response => response.json())
+                .then(data => {
+                    loading.style.display = 'none';
+                    
+                    if (data.result === 'duplicate_error') {
+                        submitButton.disabled = false;
+                        submitButton.innerText = "Lock In Picks 🔒";
+                        alert("🚨 Penalty on the play! You already have picks on file for these matchups. If you need an audible, contact the Commish directly.");
+                        return;
+                    }
+
+                    if (data.result === 'unknown_alias_error') {
+                        submitButton.disabled = false;
+                        submitButton.innerText = "Lock In Picks 🔒";
+                        alert("🚨 Invalid Alias! We couldn't find that name in the system. Please use the EXACT same Alias you used in Round 1.");
+                        return;
+                    }
+
+                    form.style.display = 'none';
+                    successMsg.style.display = 'block';
+                    form.reset();
+                })
+                .catch(error => {
                     submitButton.disabled = false;
                     submitButton.innerText = "Lock In Picks 🔒";
-                    alert("🚨 Invalid Alias! We couldn't find that name in the system. Please use the EXACT same Alias you used in Round 1.");
-                    return;
-                }
-
-                // Otherwise, success!
-                form.style.display = 'none';
-                successMsg.style.display = 'block';
-                form.reset();
-            })
-            .catch(error => {
-                submitButton.disabled = false;
-                submitButton.innerText = "Lock In Picks 🔒";
-                loading.style.display = 'none';
-                alert("Something went wrong with the connection. Please try again!");
-            });
-    });
+                    loading.style.display = 'none';
+                    alert("Something went wrong with the connection. Please try again!");
+                });
+        });
+    }
 </script>
 
 </body>
