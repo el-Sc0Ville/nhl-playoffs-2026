@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2026 Stanley Cup Playoffs - Round 2</title>
+    <title>2026 Stanley Cup Playoffs - Round 2 & 3</title>
     <style>
         :root { --primary: #0a1128; --secondary: #0076B6; --accent: #d32f2f; --bg: #eef2f5; --card: #ffffff; --money: #2e7d32; }
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: var(--bg); background-image: radial-gradient(circle at 50% 0%, #ffffff 0%, #eef2f5 100%); margin: 0; padding: 0; color: #333; min-height: 100vh; }
@@ -14,7 +14,6 @@
         .container { max-width: 650px; margin: 0 auto; padding: 20px; }
         
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes pulseAlert { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
 
         .nav-buttons { display: flex; gap: 8px; margin-bottom: 20px; overflow-x: auto; padding: 15px 0 5px; position: sticky; top: 0; background: rgba(238, 242, 245, 0.9); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); z-index: 100; }
         .nav-btn { background: #dde3e9; color: #444; border: none; padding: 14px 15px; border-radius: 12px; font-weight: 800; flex: 1; cursor: pointer; transition: all 0.2s ease; white-space: nowrap; font-size: 0.9rem; box-shadow: inset 0 -2px 0 rgba(0,0,0,0.05); }
@@ -51,15 +50,19 @@
         .lb-header div { display: flex; align-items: center; }
         .lb-row { display: flex; padding: 18px 20px; border-bottom: 1px solid #f0f2f5; cursor: pointer; transition: all 0.2s ease; align-items: center; background: white; }
         .lb-row:hover { background: #fcfcfd; }
-        .lb-rank { width: 15%; font-weight: 900; color: #888; }
-        .lb-name { width: 60%; font-weight: 800; font-size: 1.15rem; color: #111; display: flex; flex-direction: column; justify-content: center; }
+        .lb-rank { width: 18%; font-weight: 900; color: #888; font-size: 1.1rem; }
+        .lb-name { width: 57%; font-weight: 800; font-size: 1.15rem; color: #111; display: flex; flex-direction: column; justify-content: center; }
         .lb-score { width: 25%; text-align: right; justify-content: flex-end; font-weight: 900; color: var(--secondary); font-size: 1.3rem; display: flex; flex-direction: column; align-items: flex-end; }
         
         .score-actual { line-height: 1; }
         .score-potential { font-size: 0.8rem; color: #888; font-weight: 700; margin-top: 4px; }
-        .itm-badge { font-size: 0.75rem; background: #e8f5e9; color: var(--money); padding: 3px 8px; border-radius: 6px; font-weight: 800; margin-top: 4px; display: inline-block; border: 1px solid #c8e6c9; }
-        .eliminated-row { opacity: 0.55; filter: grayscale(40%); }
-        .fire-icon { animation: pulseAlert 2s infinite; display: inline-block; }
+        .itm-badge { font-size: 0.8rem; background: #e8f5e9; color: var(--money); padding: 4px 8px; border-radius: 6px; font-weight: 900; margin-top: 6px; display: inline-block; border: 1px solid #c8e6c9; }
+        
+        /* Eliminated Player Styles */
+        .eliminated-row { opacity: 0.65; background: #fafafa !important; }
+        .eliminated-row .player-name-text { text-decoration: line-through; color: #777; }
+        .eliminated-row .lb-rank { filter: grayscale(100%); }
+        .skull-badge { font-size: 0.85rem; color: var(--accent); font-weight: 900; margin-top: 4px; }
         
         .lb-row.rank-1 { background: linear-gradient(to right, #fffdf2, #ffffff); border-left: 6px solid #FFD700; }
         .lb-row.rank-2 { background: linear-gradient(to right, #f8f9fa, #ffffff); border-left: 6px solid #C0C0C0; }
@@ -78,13 +81,14 @@
         .timestamp { text-align: center; font-size: 0.8rem; color: #888; margin-top: 10px; font-weight: 600; }
         .loading, .success-message { display: none; text-align: center; margin-top: 20px; }
         .success-message h2 { color: var(--secondary); font-size: 2rem; margin-bottom: 10px; }
+        .urgent-box { padding: 20px; border-radius: 12px; border: 2px solid; margin-bottom: 25px; }
     </style>
 </head>
 <body onload="loadLeaderboard()">
 
 <div class="header">
     <h1>🏒 2026 Stanley Cup 🏆</h1>
-    <p>Round 2 • Pick 'Em Pool 🥅</p>
+    <p>Playoff Pick 'Em Pool 🥅</p>
 </div>
 
 <div class="container" id="main-container">
@@ -105,12 +109,16 @@
             <li><strong>1 Bonus Point</strong> for correctly picking the exact number of games the series lasts.</li>
         </ul>
 
-        <h3>Prizes & Payouts ($1,350 Pot) 🏆</h3>
+        <h3>Prizes, Ties & Payouts ($1,350 Pot) 🏆</h3>
+        <p>In the event of a tie on the podium, the tied players will evenly split the combined prize pool of the spots they occupy. <em>(e.g., If two people tie for 1st, they split the 1st and 2nd place money evenly).</em></p>
         <ul style="padding-left: 20px; margin-bottom: 20px; font-size: 1.1rem;">
             <li style="margin-bottom: 10px;">🥇 <strong>1st Place (60%):</strong> $810</li>
             <li style="margin-bottom: 10px;">🥈 <strong>2nd Place (30%):</strong> $405</li>
             <li>🥉 <strong>3rd Place (10%):</strong> $135</li>
         </ul>
+
+        <h3 style="color: var(--accent);">💀 Mathematical Elimination</h3>
+        <p>You will see a strikethrough and skull next to your name if you are officially out of contention. This means your <em>Max Potential Score</em> (which assumes you perfectly guess every single game left in the playoffs) is still mathematically lower than the current score of the person sitting in the last money spot.</p>
 
         <h3>Full Transparency 🔍</h3>
         <p>We run a clean book. Use the <strong>Public Ledger</strong> buttons on the Leaderboard tab to view the raw, timestamped data from every single player in the pool (emails are hidden for privacy).</p>
@@ -119,22 +127,17 @@
     <div id="leaderboard-view">
         
         <div style="text-align: center; margin-bottom: 20px; display: flex; justify-content: center; gap: 12px; flex-wrap: wrap;">
-            <a href="https://docs.google.com/spreadsheets/d/e/2PACX-1vR-Ls99A8-JQADXf22rOwZJR3tHX59RJnw-oEOz16Jk078soKaTL8z9PBW8w4U3r9gdHClnwymLew_f/pubhtml?gid=1496785778&single=true" target="_blank" style="background: #e0e4e8; color: #444; padding: 10px 20px; text-decoration: none; border-radius: 8px; font-weight: 800; font-size: 0.9rem; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+            <a href="PASTE_YOUR_ROUND_1_PUBLISHED_LINK_HERE" target="_blank" style="background: #e0e4e8; color: #444; padding: 10px 20px; text-decoration: none; border-radius: 8px; font-weight: 800; font-size: 0.9rem; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
                 ⏪ R1 Archive
             </a>
-            <a href="https://docs.google.com/spreadsheets/d/e/2PACX-1vR-Ls99A8-JQADXf22rOwZJR3tHX59RJnw-oEOz16Jk078soKaTL8z9PBW8w4U3r9gdHClnwymLew_f/pubhtml?gid=1543007548&single=true" target="_blank" style="background: var(--secondary); color: white; padding: 10px 20px; text-decoration: none; border-radius: 8px; font-weight: 800; font-size: 0.9rem; box-shadow: 0 2px 8px rgba(0, 118, 182, 0.3);">
-                📊 R2 Public Ledger
+            <a href="PASTE_YOUR_ROUND_2_LEDGER_LINK_HERE" target="_blank" style="background: var(--secondary); color: white; padding: 10px 20px; text-decoration: none; border-radius: 8px; font-weight: 800; font-size: 0.9rem; box-shadow: 0 2px 8px rgba(0, 118, 182, 0.3);">
+                📊 Master Public Ledger
             </a>
-        </div>
-
-        <div class="urgent-box" style="text-align: center; margin-top: 0; margin-bottom: 25px; border-color: var(--primary); background: #f8f9fa; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);">
-            <h3 style="margin-top: 0; color: var(--primary); font-weight: 900; font-size: 1.3rem;">🔒 Round 2 is Officially Locked!</h3>
-            <p style="font-size: 1rem; color: #444; margin-top: 0; line-height: 1.4;">The puck has dropped on all matchups. Tap a player below to view their active bracket, and keep an eye on the <strong>Make Picks</strong> tab for Round 3 announcements.</p>
         </div>
 
         <div class="leaderboard-container">
             <div class="lb-header">
-                <div class="lb-rank">#</div>
+                <div class="lb-rank">Rank</div>
                 <div class="lb-name">Player</div>
                 <div class="lb-score">Total Pts</div>
             </div>
@@ -149,9 +152,9 @@
     <div id="picks-view">
         <form name="submit-to-google-sheet" novalidate id="picks-form">
             
-            <div class="urgent-box" style="margin-top: 0; border-color: var(--accent); background: #fff0f2;">
-                <h3 style="margin-top: 0; color: var(--accent); font-weight: 900;">🚨 ROUND 3 PREP ALERT</h3>
-                <p style="font-size: 1rem; color: #333; line-height: 1.5; margin-bottom: 0;">NHL scheduling is chaotic. <strong>Round 3 series may open for picks here BEFORE Round 2 completely finishes.</strong> Check back frequently so you don't miss a puck drop!</p>
+            <div class="urgent-box" style="margin-top: 0; border-color: var(--secondary); background: #e6f4ff;">
+                <h3 style="margin-top: 0; color: var(--secondary); font-weight: 900;">🚨 ROUND 3 IS OPENING</h3>
+                <p style="font-size: 1rem; color: #333; line-height: 1.5; margin-bottom: 0;">NHL scheduling is chaotic! Round 3 matchups will unlock below as soon as they are officially set. Get your picks in before puck drop.</p>
             </div>
 
             <div id="form-inputs" style="display: none;">
@@ -169,17 +172,13 @@
             </div>
 
             <script>
-                // ALL MATCHUPS R2 & R3 PLACEHOLDERS
+                // M1 to M4 are Round 2. M5 and M6 are Round 3.
                 const matchupsForm = [
-                    // ROUND 2 (LOCKED)
-                    { id: 1, team1: "Carolina 🌪️", val1: "CAR", team2: "Philadelphia 🪽", val2: "PHI", conf: "East", locked: true, lockMsg: "🔒 R2 Locked" },
-                    { id: 2, team1: "Colorado 🏔️", val1: "COL", team2: "Minnesota 🌲", val2: "MIN", conf: "West", locked: true, lockMsg: "🔒 R2 Locked" },
-                    { id: 3, team1: "Anaheim 🦆", val1: "ANA", team2: "Vegas 🎰", val2: "VGK", conf: "West", locked: true, lockMsg: "🔒 R2 Locked" },
-                    { id: 4, team1: "Buffalo 🦬", val1: "BUF", team2: "Montreal 🏆", val2: "MTL", conf: "East", locked: true, lockMsg: "🔒 R2 Locked" },
+                    { id: 4, team1: "Buffalo 🦬", val1: "BUF", team2: "Montreal 🏆", val2: "MTL", conf: "R2 Locked", locked: true, lockMsg: "🔒 Puck Dropped" },
                     
-                    // ROUND 3 (UPCOMING PLACEHOLDERS)
-                    { id: 5, team1: "TBD", val1: "TBD1", team2: "TBD", val2: "TBD2", conf: "East Final", locked: true, lockMsg: "⏳ Awaiting R2 Results" },
-                    { id: 6, team1: "TBD", val1: "TBD3", team2: "TBD", val2: "TBD4", conf: "West Final", locked: true, lockMsg: "⏳ Awaiting R2 Results" }
+                    // ROUND 3 
+                    { id: 5, team1: "Carolina 🌪️", val1: "CAR", team2: "TBD", val2: "TBD2", conf: "East Final", locked: true, lockMsg: "⏳ Awaiting BUF/MTL Winner" },
+                    { id: 6, team1: "Vegas 🎰", val1: "VGK", team2: "Colorado 🏔️", val2: "COL", conf: "West Final", locked: false }
                 ];
 
                 let hasOpenMatchups = false;
@@ -223,7 +222,6 @@
                     }
                 });
 
-                // Show form inputs and submit button ONLY if there are open games
                 if (hasOpenMatchups) {
                     document.getElementById('form-inputs').style.display = 'block';
                     document.getElementById('form-inputs').querySelectorAll('input').forEach(i => i.required = true);
@@ -245,7 +243,7 @@
 
 <script>
     // ⬇️ GOOGLE SCRIPT URL ⬇️
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbyXU0Vn2XDfP_lweHRgsx_H-UtjfMArXVwZA_0XHx3RtiRmdAGL5C0LIMf1X8KPkMrF/exec';
+    const scriptURL = 'PASTE_YOUR_WEB_APP_URL_HERE';
     
     function switchTab(tabId) {
         document.getElementById('picks-view').style.display = tabId === 'picks' ? 'block' : 'none';
@@ -279,16 +277,22 @@
                 const answerKey = data[1]; 
                 const liveStatus = data[2]; 
 
+                // Map the 6 Matchups to their specific Spreadsheet Columns
+                // M1(3,4), M2(5,6), M3(7,8), M4(9,10), M5(12,13), M6(14,15) 
+                // Col L (11) is the R1_Score
+                const colMap = [ [3,4], [5,6], [7,8], [9,10], [12,13], [14,15] ];
+                const matchups = ["CAR/PHI", "COL/MIN", "ANA/VGK", "BUF/MTL", "CAR/TBD", "VGK/COL"];
+
                 let players = data.slice(3).map(row => {
-                    let r1Score = parseInt(row[11]) || 0; // Col L is R1_Score
+                    let r1Score = parseInt(row[11]) || 0; 
                     let pScore = r1Score;
                     let pPotential = r1Score;
                     let playerPicks = [];
 
-                    // Keep this exactly at 4 so it only pulls the active R2 matchups for scoring
-                    for (let i = 0; i < 4; i++) {
-                        let wIdx = 3 + (i * 2); 
-                        let gIdx = 4 + (i * 2); 
+                    for (let i = 0; i < 6; i++) {
+                        let wIdx = colMap[i][0]; 
+                        let gIdx = colMap[i][1]; 
+                        
                         let userW = row[wIdx];
                         let userG = parseInt(row[gIdx]);
                         let ansW = answerKey[wIdx];
@@ -343,28 +347,70 @@
                         pScore += sScore;
                         pPotential += (potW + potG);
 
-                        const matchups = ["CAR/PHI", "COL/MIN", "ANA/VGK", "BUF/MTL"];
-
-                        playerPicks.push({
-                            match: matchups[i],
-                            winner: userW,
-                            games: userG,
-                            status: liveStatus[wIdx] || "",
-                            potW: potW,
-                            potG: potG
-                        });
+                        // Only show the pick in their bracket if they actually submitted it
+                        if (userW && userW !== "") {
+                            playerPicks.push({
+                                match: matchups[i],
+                                winner: userW,
+                                games: userG,
+                                status: liveStatus[wIdx] || "",
+                                potW: potW,
+                                potG: potG
+                            });
+                        }
                     }
 
                     return { alias: row[2], score: pScore, potential: pPotential, picks: playerPicks };
                 });
 
                 players = players.filter(p => p.alias && p.alias !== "");
-                players.sort((a, b) => b.score - a.score || b.potential - a.potential);
                 
+                // 1. Sort Players
+                players.sort((a, b) => b.score - a.score || b.potential - a.potential);
                 window.poolPlayers = players;
 
+                // 2. Tie-Breaker Logic & Rank Groups
+                let currentRank = 1;
+                let rankGroups = {}; 
+                for (let i = 0; i < players.length; i++) {
+                    if (i > 0) {
+                        let prev = players[i - 1];
+                        let curr = players[i];
+                        if (curr.score !== prev.score || curr.potential !== prev.potential) {
+                            currentRank = i + 1;
+                        }
+                    }
+                    players[i].rank = currentRank;
+                    if (!rankGroups[currentRank]) rankGroups[currentRank] = [];
+                    rankGroups[currentRank].push(i);
+                }
+
+                // 3. Pari-Mutuel Prize Calculation
+                const prizePools = [810, 405, 135];
+                let prizeIndex = 0;
+                players.forEach(p => p.payout = 0); 
+
+                Object.keys(rankGroups).sort((a,b) => a-b).forEach(rank => {
+                    let group = rankGroups[rank];
+                    if (prizeIndex < 3) {
+                        let numInGroup = group.length;
+                        let totalPrizeForGroup = 0;
+                        for(let k = 0; k < numInGroup; k++){
+                            if (prizeIndex + k < 3) {
+                                totalPrizeForGroup += prizePools[prizeIndex + k];
+                            }
+                        }
+                        let splitPrize = totalPrizeForGroup / numInGroup;
+                        group.forEach(idx => { players[idx].payout = splitPrize; });
+                        prizeIndex += numInGroup; 
+                    }
+                });
+
+                // 4. Mathematical Elimination Cutoff
+                // You must be able to reach the score of the LAST MONEY SPOT (Index 2 in our array assuming no ties push it down)
                 let cutoffScore = players.length >= 3 ? players[2].score : 0;
-                let futurePointsAvailable = 9; 
+                // Only 3 points left un-tracked in the app right now (Stanley Cup Final)
+                let futurePointsAvailable = 3; 
 
                 lbBody.innerHTML = '';
                 
@@ -374,42 +420,49 @@
                         let textW = p.potW > 0 ? p.winner : `<span class="dead-pick">${p.winner}</span>`;
                         let textG = p.potG > 0 ? `in ${p.games}` : `in <span class="dead-pick">${p.games}</span>`;
                         let text = p.winner ? `${textW} <br> ${textG}` : "No Pick";
-                        
                         let statusHtml = (p.status && p.status !== "") ? `<div class="status-badge">${p.status}</div>` : ``;
-
                         picksHtml += `<div class="pick-item"><strong>${p.match}</strong>${statusHtml}<div>${text}</div></div>`;
                     });
 
+                    // Elimination Check
                     let trueMaxPotential = player.potential + futurePointsAvailable;
                     let isEliminated = trueMaxPotential < cutoffScore;
 
-                    let rankDisplay = index + 1;
+                    // UI Badges & Ranks
+                    let isTied = rankGroups[player.rank].length > 1;
+                    let medal = '';
                     let rowClass = "lb-row";
-                    let payoutBadge = "";
                     
+                    if (player.rank === 1) { medal = '🥇 '; rowClass += ' rank-1'; }
+                    else if (player.rank === 2) { medal = '🥈 '; rowClass += ' rank-2'; }
+                    else if (player.rank === 3) { medal = '🥉 '; rowClass += ' rank-3'; }
+
+                    let displayRank = isTied ? `T-${player.rank}` : `${player.rank}`;
+                    displayRank = medal + displayRank;
+
+                    let payoutBadge = "";
                     let pointsOnBoard = players.length > 0 && players[0].score > 0;
 
-                    if (pointsOnBoard) {
-                        if (index === 0) { rankDisplay = '🥇'; rowClass += ' rank-1'; payoutBadge = `<div class="itm-badge">+$810</div>`; }
-                        else if (index === 1) { rankDisplay = '🥈'; rowClass += ' rank-2'; payoutBadge = `<div class="itm-badge">+$405</div>`; }
-                        else if (index === 2) { rankDisplay = '🥉'; rowClass += ' rank-3'; payoutBadge = `<div class="itm-badge">+$135</div>`; }
+                    if (pointsOnBoard && player.payout > 0) {
+                        let formattedPayout = player.payout % 1 === 0 ? player.payout : player.payout.toFixed(2);
+                        payoutBadge = `<div class="itm-badge">+$${formattedPayout}</div>`;
                     }
 
                     if (isEliminated && pointsOnBoard) {
                         rowClass += ' eliminated-row';
-                        payoutBadge = `<div style="font-size: 0.8rem; margin-top: 4px; font-weight: 800; color: var(--accent);">💀 Dead</div>`;
+                        payoutBadge = `<div class="skull-badge">💀 Eliminated</div>`;
                     }
 
                     lbBody.innerHTML += `
                         <div class="${rowClass}" onclick="toggleDetails(${index})">
-                            <div class="lb-rank" style="font-size: ${index < 3 ? '1.5rem' : '1rem'};">${rankDisplay}</div>
+                            <div class="lb-rank">${displayRank}</div>
                             <div class="lb-name">
-                                <div>${player.alias}</div>
+                                <div class="player-name-text">${player.alias}</div>
                                 ${payoutBadge}
                             </div>
                             <div class="lb-score">
                                 <span class="score-actual">${player.score}</span>
-                                <span class="score-potential">Max (Thru R2): ${player.potential}</span>
+                                <span class="score-potential">Max (Thru R3): ${player.potential}</span>
                             </div>
                         </div>
                         <div class="lb-details" id="details-${index}">
@@ -436,11 +489,7 @@
     if (form) {
         form.addEventListener('submit', e => {
             e.preventDefault();
-            
-            if (!form.checkValidity()) {
-                form.reportValidity();
-                return;
-            }
+            if (!form.checkValidity()) { form.reportValidity(); return; }
 
             const submittedAlias = form.elements['Alias'].value.trim().toLowerCase();
             const existingPlayer = window.poolPlayers ? window.poolPlayers.find(p => p.alias.toLowerCase() === submittedAlias) : null;
@@ -471,21 +520,18 @@
                 .then(response => response.json())
                 .then(data => {
                     loading.style.display = 'none';
-                    
                     if (data.result === 'duplicate_error') {
                         submitButton.disabled = false;
                         submitButton.innerText = "Lock In Picks 🔒";
-                        alert("🚨 Penalty on the play! You already have picks on file for these matchups. If you need an audible, contact the Commish directly.");
+                        alert("🚨 Penalty on the play! You already have picks on file for these matchups.");
                         return;
                     }
-
                     if (data.result === 'unknown_alias_error') {
                         submitButton.disabled = false;
                         submitButton.innerText = "Lock In Picks 🔒";
-                        alert("🚨 Invalid Alias! We couldn't find that name in the system. Please use the EXACT same Alias you used in Round 1.");
+                        alert("🚨 Invalid Alias! We couldn't find that name in the system.");
                         return;
                     }
-
                     form.style.display = 'none';
                     successMsg.style.display = 'block';
                     form.reset();
