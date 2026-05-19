@@ -175,6 +175,8 @@
                     </div>
                 </div>
             </div>
+            
+            <div id="matchups-container"></div>
 
             <script>
                 // M1 to M4 are Round 2. M5 and M6 are Round 3.
@@ -188,20 +190,21 @@
                 ];
 
                 let hasOpenMatchups = false;
+                let htmlToInject = "";
 
                 matchupsForm.forEach(m => {
                     if (m.locked) {
-                        document.write(`
+                        htmlToInject += `
                             <div class="matchup-card" style="opacity: 0.6; border: 2px dashed #ccc; filter: grayscale(30%);">
                                 <div class="matchup-header" style="border-bottom: none; margin-bottom: 0;">
                                     <h3 style="color: #666;">${m.team1} vs. ${m.team2}</h3>
                                     <span class="status-badge" style="background: #e0e4e8; color: #444; border: 1px solid #ccc;">${m.lockMsg}</span>
                                 </div>
                             </div>
-                        `);
+                        `;
                     } else {
                         hasOpenMatchups = true;
-                        document.write(`
+                        htmlToInject += `
                             <div class="matchup-card">
                                 <div class="matchup-header">
                                     <h3>${m.team1} vs. ${m.team2}</h3>
@@ -224,14 +227,16 @@
                                     </div>
                                 </div>
                             </div>
-                        `);
+                        `;
                     }
                 });
+
+                document.getElementById('matchups-container').innerHTML = htmlToInject;
 
                 if (hasOpenMatchups) {
                     document.getElementById('form-inputs').style.display = 'block';
                     document.getElementById('form-inputs').querySelectorAll('input').forEach(i => i.required = true);
-                    document.write(`<button type="submit" id="submit-btn">Lock In Picks 🔒</button>`);
+                    document.getElementById('matchups-container').innerHTML += `<button type="submit" id="submit-btn">Lock In Picks 🔒</button>`;
                 }
             </script>
 
@@ -248,7 +253,7 @@
 </div>
 
 <script>
-    // ⬇️ GOOGLE SCRIPT URL ⬇️
+    // ⬇️ STATIC URLs PRE-LOADED ⬇️
     const scriptURL = 'https://script.google.com/macros/s/AKfycbyXU0Vn2XDfP_lweHRgsx_H-UtjfMArXVwZA_0XHx3RtiRmdAGL5C0LIMf1X8KPkMrF/exec';
     
     function switchTab(tabId) {
@@ -280,200 +285,206 @@
         fetch(scriptURL)
             .then(response => response.json())
             .then(data => {
-                const answerKey = data[1]; 
-                const liveStatus = data[2]; 
+                try {
+                    const answerKey = data[1]; 
+                    const liveStatus = data[2]; 
 
-                // Map the 6 Matchups to their specific Spreadsheet Columns
-                const colMap = [ [3,4], [5,6], [7,8], [9,10], [12,13], [14,15] ];
-                const matchups = ["CAR/PHI", "COL/MIN", "ANA/VGK", "BUF/MTL", "CAR/MTL", "VGK/COL"];
+                    // Map the 6 Matchups to their specific Spreadsheet Columns
+                    const colMap = [ [3,4], [5,6], [7,8], [9,10], [12,13], [14,15] ];
+                    const matchups = ["CAR/PHI", "COL/MIN", "ANA/VGK", "BUF/MTL", "CAR/MTL", "VGK/COL"];
 
-                let players = data.slice(3).map(row => {
-                    let r1Score = parseInt(row[11]) || 0; 
-                    let pScore = r1Score;
-                    let pPotential = r1Score;
-                    let playerPicks = [];
+                    let players = data.slice(3).map(row => {
+                        let r1Score = parseInt(row[11]) || 0; 
+                        let pScore = r1Score;
+                        let pPotential = r1Score;
+                        let playerPicks = [];
 
-                    for (let i = 0; i < 6; i++) {
-                        let wIdx = colMap[i][0]; 
-                        let gIdx = colMap[i][1]; 
-                        
-                        let userW = row[wIdx];
-                        let userG = parseInt(row[gIdx]);
-                        let ansW = answerKey[wIdx];
-                        let ansG = answerKey[gIdx];
+                        for (let i = 0; i < 6; i++) {
+                            let wIdx = colMap[i][0]; 
+                            let gIdx = colMap[i][1]; 
+                            
+                            let userW = row[wIdx];
+                            let userG = parseInt(row[gIdx]);
+                            let ansW = answerKey[wIdx];
+                            let ansG = answerKey[gIdx];
 
-                        let sScore = 0;
-                        let potW = 2; 
-                        let potG = 1;
-                        let isSeriesOver = (ansW && ansW !== "");
+                            let sScore = 0;
+                            let potW = 2; 
+                            let potG = 1;
+                            let isSeriesOver = (ansW && ansW !== "");
 
-                        if (!userW || userW === "") {
-                            if (isSeriesOver) {
-                                potW = 0; potG = 0; 
+                            if (!userW || userW === "") {
+                                if (isSeriesOver) {
+                                    potW = 0; potG = 0; 
+                                } else {
+                                    potW = 2; potG = 1; 
+                                }
                             } else {
-                                potW = 2; potG = 1; 
-                            }
-                        } else {
-                            if (isSeriesOver) {
-                                if (userW === ansW) { sScore += 2; potW = 2; } else { potW = 0; }
-                                if (userG == ansG) { sScore += 1; potG = 1; } else { potG = 0; }
-                            } else {
-                                let status = liveStatus[wIdx] || "";
-                                let match = status.match(/(\d+)\s*-\s*(\d+)/);
-                                
-                                if (match) {
-                                    let s1 = parseInt(match[1]);
-                                    let s2 = parseInt(match[2]);
-                                    let gamesPlayed = s1 + s2;
-                                    let maxWins = Math.max(s1, s2);
+                                if (isSeriesOver) {
+                                    if (userW === ansW) { sScore += 2; potW = 2; } else { potW = 0; }
+                                    if (userG == ansG) { sScore += 1; potG = 1; } else { potG = 0; }
+                                } else {
+                                    let status = liveStatus[wIdx] || "";
+                                    let match = status.match(/(\d+)\s*-\s*(\d+)/);
                                     
-                                    if (maxWins >= 4) {
-                                        if (userG !== gamesPlayed) potG = 0;
-                                    } else {
-                                        let minTotalGames = gamesPlayed + (4 - maxWins); 
-                                        if (userG < minTotalGames) potG = 0;
-                                    }
+                                    if (match) {
+                                        let s1 = parseInt(match[1]);
+                                        let s2 = parseInt(match[2]);
+                                        let gamesPlayed = s1 + s2;
+                                        let maxWins = Math.max(s1, s2);
+                                        
+                                        if (maxWins >= 4) {
+                                            if (userG !== gamesPlayed) potG = 0;
+                                        } else {
+                                            let minTotalGames = gamesPlayed + (4 - maxWins); 
+                                            if (userG < minTotalGames) potG = 0;
+                                        }
 
-                                    let userLosses = 0;
-                                    if (status.toLowerCase().includes("tied")) {
-                                        userLosses = s1;
-                                    } else if (userW && status.includes(userW)) {
-                                        userLosses = s2; 
-                                    } else {
-                                        userLosses = s1; 
+                                        let userLosses = 0;
+                                        if (status.toLowerCase().includes("tied")) {
+                                            userLosses = s1;
+                                        } else if (userW && status.includes(userW)) {
+                                            userLosses = s2; 
+                                        } else {
+                                            userLosses = s1; 
+                                        }
+                                        
+                                        if (userLosses >= 4) potW = 0;
                                     }
-                                    
-                                    if (userLosses >= 4) potW = 0;
                                 }
                             }
-                        }
 
-                        pScore += sScore;
-                        pPotential += (potW + potG);
+                            pScore += sScore;
+                            pPotential += (potW + potG);
 
-                        if (userW && userW !== "") {
-                            playerPicks.push({
-                                match: matchups[i],
-                                winner: userW,
-                                games: userG,
-                                status: liveStatus[wIdx] || "",
-                                potW: potW,
-                                potG: potG
-                            });
-                        }
-                    }
-
-                    return { alias: row[2], score: pScore, potential: pPotential, picks: playerPicks };
-                });
-
-                players = players.filter(p => p.alias && p.alias !== "");
-                
-                players.sort((a, b) => b.score - a.score || b.potential - a.potential);
-                window.poolPlayers = players;
-
-                let currentRank = 1;
-                let rankGroups = {}; 
-                for (let i = 0; i < players.length; i++) {
-                    if (i > 0) {
-                        let prev = players[i - 1];
-                        let curr = players[i];
-                        if (curr.score !== prev.score || curr.potential !== prev.potential) {
-                            currentRank = i + 1;
-                        }
-                    }
-                    players[i].rank = currentRank;
-                    if (!rankGroups[currentRank]) rankGroups[currentRank] = [];
-                    rankGroups[currentRank].push(i);
-                }
-
-                const prizePools = [810, 405, 135];
-                let prizeIndex = 0;
-                players.forEach(p => p.payout = 0); 
-
-                Object.keys(rankGroups).sort((a,b) => a-b).forEach(rank => {
-                    let group = rankGroups[rank];
-                    if (prizeIndex < 3) {
-                        let numInGroup = group.length;
-                        let totalPrizeForGroup = 0;
-                        for(let k = 0; k < numInGroup; k++){
-                            if (prizeIndex + k < 3) {
-                                totalPrizeForGroup += prizePools[prizeIndex + k];
+                            if (userW && userW !== "") {
+                                playerPicks.push({
+                                    match: matchups[i],
+                                    winner: userW,
+                                    games: userG,
+                                    status: liveStatus[wIdx] || "",
+                                    potW: potW,
+                                    potG: potG
+                                });
                             }
                         }
-                        let splitPrize = totalPrizeForGroup / numInGroup;
-                        group.forEach(idx => { players[idx].payout = splitPrize; });
-                        prizeIndex += numInGroup; 
-                    }
-                });
 
-                let cutoffScore = players.length >= 3 ? players[2].score : 0;
-                let futurePointsAvailable = 3; 
-
-                lbBody.innerHTML = '';
-                
-                players.forEach((player, index) => {
-                    let picksHtml = '';
-                    player.picks.forEach(p => {
-                        let textW = p.potW > 0 ? p.winner : `<span class="dead-pick">${p.winner}</span>`;
-                        let textG = p.potG > 0 ? `in ${p.games}` : `in <span class="dead-pick">${p.games}</span>`;
-                        let text = p.winner ? `${textW} <br> ${textG}` : "No Pick";
-                        let statusHtml = (p.status && p.status !== "") ? `<div class="status-badge">${p.status}</div>` : ``;
-                        picksHtml += `<div class="pick-item"><strong>${p.match}</strong>${statusHtml}<div>${text}</div></div>`;
+                        return { alias: row[2], score: pScore, potential: pPotential, picks: playerPicks };
                     });
 
-                    let trueMaxPotential = player.potential + futurePointsAvailable;
-                    let isEliminated = trueMaxPotential < cutoffScore;
-
-                    let isTied = rankGroups[player.rank].length > 1;
-                    let medal = '';
-                    let rowClass = "lb-row";
+                    players = players.filter(p => p.alias && p.alias !== "");
                     
-                    if (player.rank === 1) { medal = '🥇 '; rowClass += ' rank-1'; }
-                    else if (player.rank === 2) { medal = '🥈 '; rowClass += ' rank-2'; }
-                    else if (player.rank === 3) { medal = '🥉 '; rowClass += ' rank-3'; }
+                    players.sort((a, b) => b.score - a.score || b.potential - a.potential);
+                    window.poolPlayers = players;
 
-                    let displayRank = isTied ? `T-${player.rank}` : `${player.rank}`;
-                    displayRank = medal + displayRank;
-
-                    let payoutBadge = "";
-                    let pointsOnBoard = players.length > 0 && players[0].score > 0;
-
-                    if (pointsOnBoard && player.payout > 0) {
-                        let formattedPayout = player.payout % 1 === 0 ? player.payout : player.payout.toFixed(2);
-                        payoutBadge = `<div class="itm-badge">+$${formattedPayout}</div>`;
+                    let currentRank = 1;
+                    let rankGroups = {}; 
+                    for (let i = 0; i < players.length; i++) {
+                        if (i > 0) {
+                            let prev = players[i - 1];
+                            let curr = players[i];
+                            if (curr.score !== prev.score || curr.potential !== prev.potential) {
+                                currentRank = i + 1;
+                            }
+                        }
+                        players[i].rank = currentRank;
+                        if (!rankGroups[currentRank]) rankGroups[currentRank] = [];
+                        rankGroups[currentRank].push(i);
                     }
 
-                    if (isEliminated && pointsOnBoard) {
-                        rowClass += ' eliminated-row';
-                        payoutBadge = `<div class="skull-badge">💀 Eliminated</div>`;
-                    }
+                    const prizePools = [810, 405, 135];
+                    let prizeIndex = 0;
+                    players.forEach(p => p.payout = 0); 
 
-                    lbBody.innerHTML += `
-                        <div class="${rowClass}" onclick="toggleDetails(${index})">
-                            <div class="lb-rank">${displayRank}</div>
-                            <div class="lb-name">
-                                <div class="player-name-text">${player.alias}</div>
-                                ${payoutBadge}
-                            </div>
-                            <div class="lb-score">
-                                <span class="score-actual">${player.score}</span>
-                                <span class="score-potential">Max (Thru R3): ${player.potential}</span>
-                            </div>
-                        </div>
-                        <div class="lb-details" id="details-${index}">
-                            <div class="picks-grid-summary">
-                                ${picksHtml}
-                            </div>
-                        </div>
-                    `;
-                });
+                    Object.keys(rankGroups).sort((a,b) => a-b).forEach(rank => {
+                        let group = rankGroups[rank];
+                        if (prizeIndex < 3) {
+                            let numInGroup = group.length;
+                            let totalPrizeForGroup = 0;
+                            for(let k = 0; k < numInGroup; k++){
+                                if (prizeIndex + k < 3) {
+                                    totalPrizeForGroup += prizePools[prizeIndex + k];
+                                }
+                            }
+                            let splitPrize = totalPrizeForGroup / numInGroup;
+                            group.forEach(idx => { players[idx].payout = splitPrize; });
+                            prizeIndex += numInGroup; 
+                        }
+                    });
 
-                let now = new Date();
-                document.getElementById('last-updated').innerText = `Last Updated: ${now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
+                    let cutoffScore = players.length >= 3 ? players[2].score : 0;
+                    let futurePointsAvailable = 3; 
+
+                    lbBody.innerHTML = '';
+                    
+                    players.forEach((player, index) => {
+                        let picksHtml = '';
+                        player.picks.forEach(p => {
+                            let textW = p.potW > 0 ? p.winner : `<span class="dead-pick">${p.winner}</span>`;
+                            let textG = p.potG > 0 ? `in ${p.games}` : `in <span class="dead-pick">${p.games}</span>`;
+                            let text = p.winner ? `${textW} <br> ${textG}` : "No Pick";
+                            let statusHtml = (p.status && p.status !== "") ? `<div class="status-badge">${p.status}</div>` : ``;
+                            picksHtml += `<div class="pick-item"><strong>${p.match}</strong>${statusHtml}<div>${text}</div></div>`;
+                        });
+
+                        let trueMaxPotential = player.potential + futurePointsAvailable;
+                        let isEliminated = trueMaxPotential < cutoffScore;
+
+                        let isTied = rankGroups[player.rank].length > 1;
+                        let medal = '';
+                        let rowClass = "lb-row";
+                        
+                        if (player.rank === 1) { medal = '🥇 '; rowClass += ' rank-1'; }
+                        else if (player.rank === 2) { medal = '🥈 '; rowClass += ' rank-2'; }
+                        else if (player.rank === 3) { medal = '🥉 '; rowClass += ' rank-3'; }
+
+                        let displayRank = isTied ? `T-${player.rank}` : `${player.rank}`;
+                        displayRank = medal + displayRank;
+
+                        let payoutBadge = "";
+                        let pointsOnBoard = players.length > 0 && players[0].score > 0;
+
+                        if (pointsOnBoard && player.payout > 0) {
+                            let formattedPayout = player.payout % 1 === 0 ? player.payout : player.payout.toFixed(2);
+                            payoutBadge = `<div class="itm-badge">+$${formattedPayout}</div>`;
+                        }
+
+                        if (isEliminated && pointsOnBoard) {
+                            rowClass += ' eliminated-row';
+                            payoutBadge = `<div class="skull-badge">💀 Eliminated</div>`;
+                        }
+
+                        lbBody.innerHTML += `
+                            <div class="${rowClass}" onclick="toggleDetails(${index})">
+                                <div class="lb-rank">${displayRank}</div>
+                                <div class="lb-name">
+                                    <div class="player-name-text">${player.alias}</div>
+                                    ${payoutBadge}
+                                </div>
+                                <div class="lb-score">
+                                    <span class="score-actual">${player.score}</span>
+                                    <span class="score-potential">Max (Thru R3): ${player.potential}</span>
+                                </div>
+                            </div>
+                            <div class="lb-details" id="details-${index}">
+                                <div class="picks-grid-summary">
+                                    ${picksHtml}
+                                </div>
+                            </div>
+                        `;
+                    });
+
+                    let now = new Date();
+                    document.getElementById('last-updated').innerText = `Last Updated: ${now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
+                    
+                } catch(err) {
+                    console.error('Data Processing Error:', err);
+                    lbBody.innerHTML = `<div style="padding:40px; text-align:center; color:var(--accent); font-weight:800; font-size: 1.1rem;">🚨 Math Engine Error: Please contact Commish.</div>`;
+                }
             })
             .catch(error => {
-                console.error('Error:', error);
-                lbBody.innerHTML = '<div style="padding:40px; text-align:center; color:var(--accent); font-weight:800; font-size: 1.1rem;">🚨 Failed to load standings. Try again!</div>';
+                console.error('Fetch Error:', error);
+                lbBody.innerHTML = '<div style="padding:40px; text-align:center; color:var(--accent); font-weight:800; font-size: 1.1rem;">🚨 Failed to connect to Google Sheets. Try again!</div>';
             });
     }
 
@@ -491,8 +502,51 @@
 
             if (existingPlayer) {
                 let alreadyPicked = false;
-                const openMatchupIds = matchupsForm.filter(m => !m.locked).map(m => m.id);
                 
-                openMatchupIds.forEach(id => {
-                    let pickIndex = id - 1; 
-                    if (existingPlayer.picks[pickIndex] && existingPlayer.picks[pickIndex].winner !== "") {
+                // M5 (CAR/MTL) is index 4 in picks array. M6 (VGK/COL) is index 5.
+                if (existingPlayer.picks[4] && existingPlayer.picks[4].winner !== "") alreadyPicked = true;
+                if (existingPlayer.picks[5] && existingPlayer.picks[5].winner !== "") alreadyPicked = true;
+
+                if (alreadyPicked) {
+                    alert("🚨 Penalty on the play! It looks like you've already submitted picks for these matchups. If you need an audible, please contact the Commish directly.");
+                    return;
+                }
+            }
+            
+            const submitButton = document.getElementById('submit-btn');
+            submitButton.disabled = true;
+            submitButton.innerText = "Checking with the refs...";
+            loading.style.display = 'block';
+
+            fetch(scriptURL, { method: 'POST', body: new FormData(form)})
+                .then(response => response.json())
+                .then(data => {
+                    loading.style.display = 'none';
+                    if (data.result === 'duplicate_error') {
+                        submitButton.disabled = false;
+                        submitButton.innerText = "Lock In Picks 🔒";
+                        alert("🚨 Penalty on the play! You already have picks on file for these matchups.");
+                        return;
+                    }
+                    if (data.result === 'unknown_alias_error') {
+                        submitButton.disabled = false;
+                        submitButton.innerText = "Lock In Picks 🔒";
+                        alert("🚨 Invalid Alias! We couldn't find that name in the system.");
+                        return;
+                    }
+                    form.style.display = 'none';
+                    successMsg.style.display = 'block';
+                    form.reset();
+                })
+                .catch(error => {
+                    submitButton.disabled = false;
+                    submitButton.innerText = "Lock In Picks 🔒";
+                    loading.style.display = 'none';
+                    alert("Something went wrong with the connection. Please try again!");
+                });
+        });
+    }
+</script>
+
+</body>
+</html>
