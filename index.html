@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2026 Stanley Cup Playoffs - Round 2 & 3</title>
+    <title>2026 Stanley Cup Playoffs - Round 3</title>
     <style>
         :root { --primary: #0a1128; --secondary: #0076B6; --accent: #d32f2f; --bg: #eef2f5; --card: #ffffff; --money: #2e7d32; }
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: var(--bg); background-image: radial-gradient(circle at 50% 0%, #ffffff 0%, #eef2f5 100%); margin: 0; padding: 0; color: #333; min-height: 100vh; }
@@ -135,6 +135,11 @@
             </a>
         </div>
 
+        <div class="urgent-box" style="text-align: center; margin-top: 0; margin-bottom: 25px; border-color: var(--secondary); background: #e6f4ff; box-shadow: 0 4px 15px rgba(0, 118, 182, 0.15);">
+            <h3 style="margin-top: 0; color: var(--secondary); font-weight: 900; font-size: 1.3rem;">🚨 Round 3 is Fully Open!</h3>
+            <p style="font-size: 1rem; color: #333; margin-top: 0; line-height: 1.4;">The Conference Finals are set (CAR vs MTL & VGK vs COL). Hit the <strong>Make Picks</strong> tab to lock them in before the puck drops!</p>
+        </div>
+
         <div class="leaderboard-container">
             <div class="lb-header">
                 <div class="lb-rank">Rank</div>
@@ -153,8 +158,8 @@
         <form name="submit-to-google-sheet" novalidate id="picks-form">
             
             <div class="urgent-box" style="margin-top: 0; border-color: var(--secondary); background: #e6f4ff;">
-                <h3 style="margin-top: 0; color: var(--secondary); font-weight: 900;">🚨 ROUND 3 IS OPENING</h3>
-                <p style="font-size: 1rem; color: #333; line-height: 1.5; margin-bottom: 0;">NHL scheduling is chaotic! Round 3 matchups will unlock below as soon as they are officially set. Get your picks in before puck drop.</p>
+                <h3 style="margin-top: 0; color: var(--secondary); font-weight: 900;">🚨 ROUND 3 IS OPEN</h3>
+                <p style="font-size: 1rem; color: #333; line-height: 1.5; margin-bottom: 0;">Both Conference Finals are locked in! Make sure you submit your picks for both matchups before their respective Game 1 puck drops.</p>
             </div>
 
             <div id="form-inputs" style="display: none;">
@@ -174,10 +179,11 @@
             <script>
                 // M1 to M4 are Round 2. M5 and M6 are Round 3.
                 const matchupsForm = [
-                    { id: 4, team1: "Buffalo 🦬", val1: "BUF", team2: "Montreal 🏆", val2: "MTL", conf: "R2 Locked", locked: true, lockMsg: "🔒 Puck Dropped" },
+                    // M4: Buffalo vs Montreal - LOCKED
+                    { id: 4, team1: "Buffalo 🦬", val1: "BUF", team2: "Montreal 🏆", val2: "MTL", conf: "Round 2", locked: true, lockMsg: "🔒 Series Ended" },
                     
-                    // ROUND 3 
-                    { id: 5, team1: "Carolina 🌪️", val1: "CAR", team2: "TBD", val2: "TBD2", conf: "East Final", locked: true, lockMsg: "⏳ Awaiting BUF/MTL Winner" },
+                    // ROUND 3 - NOW BOTH OPEN
+                    { id: 5, team1: "Carolina 🌪️", val1: "CAR", team2: "Montreal 🏆", val2: "MTL", conf: "East Final", locked: false },
                     { id: 6, team1: "Vegas 🎰", val1: "VGK", team2: "Colorado 🏔️", val2: "COL", conf: "West Final", locked: false }
                 ];
 
@@ -278,10 +284,8 @@
                 const liveStatus = data[2]; 
 
                 // Map the 6 Matchups to their specific Spreadsheet Columns
-                // M1(3,4), M2(5,6), M3(7,8), M4(9,10), M5(12,13), M6(14,15) 
-                // Col L (11) is the R1_Score
                 const colMap = [ [3,4], [5,6], [7,8], [9,10], [12,13], [14,15] ];
-                const matchups = ["CAR/PHI", "COL/MIN", "ANA/VGK", "BUF/MTL", "CAR/TBD", "VGK/COL"];
+                const matchups = ["CAR/PHI", "COL/MIN", "ANA/VGK", "BUF/MTL", "CAR/MTL", "VGK/COL"];
 
                 let players = data.slice(3).map(row => {
                     let r1Score = parseInt(row[11]) || 0; 
@@ -347,7 +351,6 @@
                         pScore += sScore;
                         pPotential += (potW + potG);
 
-                        // Only show the pick in their bracket if they actually submitted it
                         if (userW && userW !== "") {
                             playerPicks.push({
                                 match: matchups[i],
@@ -365,11 +368,9 @@
 
                 players = players.filter(p => p.alias && p.alias !== "");
                 
-                // 1. Sort Players
                 players.sort((a, b) => b.score - a.score || b.potential - a.potential);
                 window.poolPlayers = players;
 
-                // 2. Tie-Breaker Logic & Rank Groups
                 let currentRank = 1;
                 let rankGroups = {}; 
                 for (let i = 0; i < players.length; i++) {
@@ -385,7 +386,6 @@
                     rankGroups[currentRank].push(i);
                 }
 
-                // 3. Pari-Mutuel Prize Calculation
                 const prizePools = [810, 405, 135];
                 let prizeIndex = 0;
                 players.forEach(p => p.payout = 0); 
@@ -406,10 +406,7 @@
                     }
                 });
 
-                // 4. Mathematical Elimination Cutoff
-                // You must be able to reach the score of the LAST MONEY SPOT (Index 2 in our array assuming no ties push it down)
                 let cutoffScore = players.length >= 3 ? players[2].score : 0;
-                // Only 3 points left un-tracked in the app right now (Stanley Cup Final)
                 let futurePointsAvailable = 3; 
 
                 lbBody.innerHTML = '';
@@ -424,11 +421,9 @@
                         picksHtml += `<div class="pick-item"><strong>${p.match}</strong>${statusHtml}<div>${text}</div></div>`;
                     });
 
-                    // Elimination Check
                     let trueMaxPotential = player.potential + futurePointsAvailable;
                     let isEliminated = trueMaxPotential < cutoffScore;
 
-                    // UI Badges & Ranks
                     let isTied = rankGroups[player.rank].length > 1;
                     let medal = '';
                     let rowClass = "lb-row";
@@ -501,50 +496,3 @@
                 openMatchupIds.forEach(id => {
                     let pickIndex = id - 1; 
                     if (existingPlayer.picks[pickIndex] && existingPlayer.picks[pickIndex].winner !== "") {
-                        alreadyPicked = true;
-                    }
-                });
-
-                if (alreadyPicked) {
-                    alert("🚨 Penalty on the play! It looks like you've already submitted picks for these matchups. If you need an audible, please contact the Commish directly.");
-                    return;
-                }
-            }
-            
-            const submitButton = document.getElementById('submit-btn');
-            submitButton.disabled = true;
-            submitButton.innerText = "Checking with the refs...";
-            loading.style.display = 'block';
-
-            fetch(scriptURL, { method: 'POST', body: new FormData(form)})
-                .then(response => response.json())
-                .then(data => {
-                    loading.style.display = 'none';
-                    if (data.result === 'duplicate_error') {
-                        submitButton.disabled = false;
-                        submitButton.innerText = "Lock In Picks 🔒";
-                        alert("🚨 Penalty on the play! You already have picks on file for these matchups.");
-                        return;
-                    }
-                    if (data.result === 'unknown_alias_error') {
-                        submitButton.disabled = false;
-                        submitButton.innerText = "Lock In Picks 🔒";
-                        alert("🚨 Invalid Alias! We couldn't find that name in the system.");
-                        return;
-                    }
-                    form.style.display = 'none';
-                    successMsg.style.display = 'block';
-                    form.reset();
-                })
-                .catch(error => {
-                    submitButton.disabled = false;
-                    submitButton.innerText = "Lock In Picks 🔒";
-                    loading.style.display = 'none';
-                    alert("Something went wrong with the connection. Please try again!");
-                });
-        });
-    }
-</script>
-
-</body>
-</html>
