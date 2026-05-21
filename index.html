@@ -136,8 +136,8 @@
         </div>
 
         <div class="urgent-box" style="text-align: center; margin-top: 0; margin-bottom: 25px; border-color: var(--secondary); background: #e6f4ff; box-shadow: 0 4px 15px rgba(0, 118, 182, 0.15);">
-            <h3 style="margin-top: 0; color: var(--secondary); font-weight: 900; font-size: 1.3rem;">🚨 Round 3 is Fully Open!</h3>
-            <p style="font-size: 1rem; color: #333; margin-top: 0; line-height: 1.4;">The Conference Finals are set (CAR vs MTL & VGK vs COL). Hit the <strong>Make Picks</strong> tab to lock them in before the puck drops!</p>
+            <h3 style="margin-top: 0; color: var(--secondary); font-weight: 900; font-size: 1.3rem;">🚨 Last Call for Round 3!</h3>
+            <p style="font-size: 1rem; color: #333; margin-top: 0; line-height: 1.4;">The puck has dropped on VGK vs COL, but you can still submit your picks for the <strong>East Final (CAR vs MTL)</strong> before tomorrow's game!</p>
         </div>
 
         <div class="leaderboard-container">
@@ -158,8 +158,8 @@
         <form name="submit-to-google-sheet" novalidate id="picks-form">
             
             <div class="urgent-box" style="margin-top: 0; border-color: var(--secondary); background: #e6f4ff;">
-                <h3 style="margin-top: 0; color: var(--secondary); font-weight: 900;">🚨 ROUND 3 IS OPEN</h3>
-                <p style="font-size: 1rem; color: #333; line-height: 1.5; margin-bottom: 0;">Both Conference Finals are locked in! Make sure you submit your picks for both matchups before their respective Game 1 puck drops.</p>
+                <h3 style="margin-top: 0; color: var(--secondary); font-weight: 900;">🚨 EAST FINAL OPEN</h3>
+                <p style="font-size: 1rem; color: #333; line-height: 1.5; margin-bottom: 0;">The West Final is officially locked, but you can still lock in your picks for the East (CAR vs MTL) before the puck drops tomorrow.</p>
             </div>
 
             <div id="form-inputs" style="display: none;">
@@ -184,9 +184,9 @@
                     // M4: Buffalo vs Montreal - LOCKED
                     { id: 4, team1: "Buffalo 🦬", val1: "BUF", team2: "Montreal 🏆", val2: "MTL", conf: "Round 2", locked: true, lockMsg: "🔒 Series Ended" },
                     
-                    // ROUND 3 - NOW BOTH OPEN
+                    // ROUND 3 - WEST LOCKED, EAST OPEN
                     { id: 5, team1: "Carolina 🌪️", val1: "CAR", team2: "Montreal 🏆", val2: "MTL", conf: "East Final", locked: false },
-                    { id: 6, team1: "Vegas 🎰", val1: "VGK", team2: "Colorado 🏔️", val2: "COL", conf: "West Final", locked: false }
+                    { id: 6, team1: "Vegas 🎰", val1: "VGK", team2: "Colorado 🏔️", val2: "COL", conf: "West Final", locked: true, lockMsg: "🔒 Puck Dropped" }
                 ];
 
                 let hasOpenMatchups = false;
@@ -503,9 +503,15 @@
             if (existingPlayer) {
                 let alreadyPicked = false;
                 
-                // M5 (CAR/MTL) is index 4 in picks array. M6 (VGK/COL) is index 5.
-                if (existingPlayer.picks[4] && existingPlayer.picks[4].winner !== "") alreadyPicked = true;
-                if (existingPlayer.picks[5] && existingPlayer.picks[5].winner !== "") alreadyPicked = true;
+                // Dynamically check ONLY the matchups that are still open!
+                const openMatchupIds = matchupsForm.filter(m => !m.locked).map(m => m.id);
+                
+                openMatchupIds.forEach(id => {
+                    let pickIndex = id - 1; // Array index
+                    if (existingPlayer.picks[pickIndex] && existingPlayer.picks[pickIndex].winner !== "") {
+                        alreadyPicked = true;
+                    }
+                });
 
                 if (alreadyPicked) {
                     alert("🚨 Penalty on the play! It looks like you've already submitted picks for these matchups. If you need an audible, please contact the Commish directly.");
