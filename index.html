@@ -46,8 +46,9 @@
         
         /* Badges */
         .itm-badge { font-size: 0.8rem; background: #e8f5e9; color: var(--money); padding: 4px 8px; border-radius: 6px; font-weight: 900; margin-top: 6px; display: inline-block; border: 1px solid #c8e6c9; }
-        .bubble-badge { font-size: 0.75rem; background: #fff3cd; color: #856404; padding: 4px 8px; border-radius: 6px; font-weight: 800; margin-top: 6px; display: inline-block; border: 1px solid #ffeeba; }
-        .skull-badge { font-size: 0.85rem; color: var(--accent); font-weight: 900; margin-top: 6px; }
+        .bubble-badge { font-size: 0.75rem; background: #fff3cd; color: #856404; padding: 4px 8px; border-radius: 6px; font-weight: 800; margin-top: 6px; display: inline-block; border: 1px solid #ffeeba; transition: all 0.2s; }
+        .skull-badge { font-size: 0.85rem; color: var(--accent); font-weight: 900; margin-top: 6px; display: inline-block; transition: all 0.2s; }
+        .bubble-badge:hover, .skull-badge:hover { filter: brightness(0.9); transform: scale(1.02); }
         
         .eliminated-row { opacity: 0.65; background: #fafafa !important; }
         .eliminated-row .player-name-text { text-decoration: line-through; color: #777; }
@@ -68,6 +69,7 @@
         .refresh-btn { width: 100%; padding: 16px; background: #111; color: white; border: none; border-radius: 12px; margin-top: 15px; font-weight: 800; cursor: pointer; transition: 0.2s; font-size: 1.05rem; box-shadow: 0 6px 15px rgba(0,0,0,0.15); }
         .refresh-btn:hover { background: #333; transform: translateY(-2px); }
         .timestamp { text-align: center; font-size: 0.8rem; color: #888; margin-top: 10px; font-weight: 600; }
+        .urgent-box { padding: 20px; border-radius: 12px; border: 2px solid; margin-bottom: 25px; }
     </style>
 </head>
 <body onload="loadLeaderboard()">
@@ -232,7 +234,6 @@
                     const answerKey = data[1]; 
                     const liveStatus = data[2]; 
 
-                    // Map the 6 Matchups to their specific Spreadsheet Columns
                     const colMap = [ [3,4], [5,6], [7,8], [9,10], [12,13], [14,15] ];
                     const matchups = ["CAR/PHI", "COL/MIN", "ANA/VGK", "BUF/MTL", "CAR/MTL", "VGK/COL"];
 
@@ -356,7 +357,6 @@
                     // THE SMART ELIMINATION ENGINE
                     let futurePointsAvailable = 3; 
                     
-                    // Identify the player on the exact bubble (lowest score still in the money)
                     let cutoffPlayer = null;
                     for (let i = players.length - 1; i >= 0; i--) {
                         if (players[i].payout > 0) {
@@ -366,6 +366,9 @@
                     }
 
                     lbBody.innerHTML = '';
+                    
+                    // EXPLANATION TEXT FOR THE TOOLTIP
+                    let overlapExplanation = "Eliminations use Head-to-Head Overlap logic! If your remaining picks match the players currently in the money, you cannot mathematically gain ground on them. This is why someone with a lower potential score might still be alive while you are eliminated.";
                     
                     players.forEach((player, index) => {
                         let picksHtml = '';
@@ -379,11 +382,9 @@
 
                         let isEliminated = false;
                         
-                        // Smart Overlap Calculation
                         if (player.payout === 0 && cutoffPlayer) {
                             let maxCatchUp = player.score;
                             
-                            // Check overlap for all 6 matchups
                             for (let i = 0; i < 6; i++) {
                                 let pPick = player.picks[i];
                                 let cPick = cutoffPlayer.picks[i];
@@ -392,7 +393,6 @@
                                     let gainW = pPick.potW;
                                     let gainG = pPick.potG;
                                     
-                                    // If you picked the exact same outcome, you can't gain ground!
                                     if (pPick.winner === cPick.winner && pPick.winner !== "") gainW = 0;
                                     if (pPick.games === cPick.games && pPick.games !== 0) gainG = 0;
                                     
@@ -401,7 +401,6 @@
                                     maxCatchUp += (pPick.potW + pPick.potG);
                                 }
                             }
-                            // Add Stanley Cup invisible points
                             maxCatchUp += futurePointsAvailable;
                             
                             if (maxCatchUp < cutoffPlayer.score) {
@@ -429,12 +428,12 @@
                                 let formattedPayout = player.payout % 1 === 0 ? player.payout : player.payout.toFixed(2);
                                 payoutBadge = `<div class="itm-badge">+$${formattedPayout}</div>`;
                             } else if (!isEliminated) {
-                                // ON THE BUBBLE
-                                payoutBadge = `<div class="bubble-badge">🫧 On the Bubble</div>`;
+                                // ON THE BUBBLE with Clickable Alert
+                                payoutBadge = `<div class="bubble-badge" style="cursor:help;" onclick="alert('${overlapExplanation}'); event.stopPropagation();">🫧 On the Bubble ⓘ</div>`;
                             } else {
-                                // DEAD
+                                // DEAD with Clickable Alert
                                 rowClass += ' eliminated-row';
-                                payoutBadge = `<div class="skull-badge">💀 Eliminated</div>`;
+                                payoutBadge = `<div class="skull-badge" style="cursor:help;" onclick="alert('${overlapExplanation}'); event.stopPropagation();">💀 Eliminated ⓘ</div>`;
                             }
                         }
 
