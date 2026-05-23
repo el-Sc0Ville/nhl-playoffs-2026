@@ -46,9 +46,14 @@
         
         /* Badges */
         .itm-badge { font-size: 0.8rem; background: #e8f5e9; color: var(--money); padding: 4px 8px; border-radius: 6px; font-weight: 900; margin-top: 6px; display: inline-block; border: 1px solid #c8e6c9; }
+        
+        /* The Three Tiers of Hope */
+        .hunt-badge { font-size: 0.75rem; background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 6px; font-weight: 800; margin-top: 6px; display: inline-block; border: 1px solid #ffcdd2; transition: all 0.2s; }
         .bubble-badge { font-size: 0.75rem; background: #fff3cd; color: #856404; padding: 4px 8px; border-radius: 6px; font-weight: 800; margin-top: 6px; display: inline-block; border: 1px solid #ffeeba; transition: all 0.2s; }
+        .miracle-badge { font-size: 0.75rem; background: #e8eaf6; color: #283593; padding: 4px 8px; border-radius: 6px; font-weight: 800; margin-top: 6px; display: inline-block; border: 1px solid #c5cae9; transition: all 0.2s; }
+        
         .skull-badge { font-size: 0.85rem; color: var(--accent); font-weight: 900; margin-top: 6px; display: inline-block; transition: all 0.2s; }
-        .bubble-badge:hover, .skull-badge:hover { filter: brightness(0.9); transform: scale(1.02); }
+        .hunt-badge:hover, .bubble-badge:hover, .miracle-badge:hover, .skull-badge:hover { filter: brightness(0.9); transform: scale(1.02); }
         
         .eliminated-row { opacity: 0.65; background: #fafafa !important; }
         .eliminated-row .player-name-text { text-decoration: line-through; color: #777; }
@@ -105,8 +110,14 @@
             <li>🥉 <strong>3rd Place (10%):</strong> $135</li>
         </ul>
 
-        <h3 style="color: #856404;">🫧 The Bubble & 💀 Elimination</h3>
-        <p>Players sitting outside the money but mathematically capable of catching the top 3 will have an <strong>On the Bubble</strong> badge. You will see a strikethrough and <strong>💀 Eliminated</strong> badge next to your name if you are officially "drawing dead" (meaning your remaining picks perfectly overlap with the leaders, or your max potential score is too low to catch them).</p>
+        <h3 style="color: #856404;">🫧 The Hope Tiers & 💀 Elimination</h3>
+        <p>Players sitting outside the money are now categorized based on their exact mathematical path to victory (comparing their remaining picks vs the leaders):</p>
+        <ul style="padding-left: 20px; margin-bottom: 20px; font-size: 0.95rem;">
+            <li>🔥 <strong>In the Hunt:</strong> You have a healthy mathematical path to the podium.</li>
+            <li>🫧 <strong>On the Bubble:</strong> Your margin of error is razor thin.</li>
+            <li>🙏 <strong>Need a Miracle:</strong> Your only path is a flawless finish combined with a total collapse from the leaders.</li>
+            <li>💀 <strong>Eliminated:</strong> You are mathematically drawing dead. The bubble has popped.</li>
+        </ul>
 
         <h3>Full Transparency 🔍</h3>
         <p>We run a clean book. Use the <strong>Master Public Ledger</strong> button on the Leaderboard tab to view the raw, timestamped data from every single player in the pool.</p>
@@ -144,7 +155,7 @@
             <p style="font-size: 1.05rem; line-height: 1.5; color: #444;">The dust has settled, the Cinderellas have danced, and the puck has officially dropped on both Conference Finals. The betting window is now <strong>CLOSED</strong>.</p>
             
             <h3 style="color: var(--money); margin-top: 20px;">The Bubble Watch 💰</h3>
-            <p style="font-size: 1rem; line-height: 1.5; color: #444; margin-bottom: 0;">With a massive $1,350 pot hanging in the balance, every single goal matters. We have leaders sweating bullets, mid-pack grinders on the bubble praying for 7-game series, and mathematically eliminated players haunting the board like ghosts. Buckle up—the parity is insane, and the tie-breaker pot splits are creating some serious drama!</p>
+            <p style="font-size: 1rem; line-height: 1.5; color: #444; margin-bottom: 0;">With a massive $1,350 pot hanging in the balance, every single goal matters. We have leaders sweating bullets, hunters closing in, and mathematically eliminated players haunting the board like ghosts. Buckle up—the parity is insane, and the tie-breaker pot splits are creating some serious drama!</p>
         </div>
 
         <div class="bracket-layout">
@@ -367,8 +378,7 @@
 
                     lbBody.innerHTML = '';
                     
-                    // EXPLANATION TEXT FOR THE TOOLTIP
-                    let overlapExplanation = "Eliminations use Head-to-Head Overlap logic! If your remaining picks match the players currently in the money, you cannot mathematically gain ground on them. This is why someone with a lower potential score might still be alive while you are eliminated.";
+                    let overlapExplanation = "Your status is based on Head-to-Head Overlap logic! We calculate your exact path to catching the players currently in the money based on your remaining picks versus theirs. If you picked the exact same teams/games as them, you cannot mathematically gain ground.";
                     
                     players.forEach((player, index) => {
                         let picksHtml = '';
@@ -381,10 +391,9 @@
                         });
 
                         let isEliminated = false;
+                        let maxCatchUp = player.score; // Track their ceiling relative to the cutoff
                         
                         if (player.payout === 0 && cutoffPlayer) {
-                            let maxCatchUp = player.score;
-                            
                             for (let i = 0; i < 6; i++) {
                                 let pPick = player.picks[i];
                                 let cPick = cutoffPlayer.picks[i];
@@ -393,6 +402,7 @@
                                     let gainW = pPick.potW;
                                     let gainG = pPick.potG;
                                     
+                                    // Overlap logic: zero gain if picked the same thing
                                     if (pPick.winner === cPick.winner && pPick.winner !== "") gainW = 0;
                                     if (pPick.games === cPick.games && pPick.games !== 0) gainG = 0;
                                     
@@ -401,7 +411,9 @@
                                     maxCatchUp += (pPick.potW + pPick.potG);
                                 }
                             }
+                            // Add Stanley Cup invisible points
                             maxCatchUp += futurePointsAvailable;
+                            player.maxCatchUp = maxCatchUp; // Save it to the object
                             
                             if (maxCatchUp < cutoffPlayer.score) {
                                 isEliminated = true;
@@ -428,10 +440,18 @@
                                 let formattedPayout = player.payout % 1 === 0 ? player.payout : player.payout.toFixed(2);
                                 payoutBadge = `<div class="itm-badge">+$${formattedPayout}</div>`;
                             } else if (!isEliminated) {
-                                // ON THE BUBBLE with Clickable Alert
-                                payoutBadge = `<div class="bubble-badge" style="cursor:help;" onclick="alert('${overlapExplanation}'); event.stopPropagation();">🫧 On the Bubble ⓘ</div>`;
+                                // TIERED BUBBLE LOGIC
+                                let margin = player.maxCatchUp - cutoffPlayer.score;
+                                
+                                if (margin >= 3) {
+                                    payoutBadge = `<div class="hunt-badge" style="cursor:help;" onclick="alert('${overlapExplanation}'); event.stopPropagation();">🔥 In the Hunt ⓘ</div>`;
+                                } else if (margin >= 1) {
+                                    payoutBadge = `<div class="bubble-badge" style="cursor:help;" onclick="alert('${overlapExplanation}'); event.stopPropagation();">🫧 On the Bubble ⓘ</div>`;
+                                } else {
+                                    payoutBadge = `<div class="miracle-badge" style="cursor:help;" onclick="alert('${overlapExplanation}'); event.stopPropagation();">🙏 Need a Miracle ⓘ</div>`;
+                                }
                             } else {
-                                // DEAD with Clickable Alert
+                                // DEAD
                                 rowClass += ' eliminated-row';
                                 payoutBadge = `<div class="skull-badge" style="cursor:help;" onclick="alert('${overlapExplanation}'); event.stopPropagation();">💀 Eliminated ⓘ</div>`;
                             }
