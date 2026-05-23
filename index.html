@@ -104,7 +104,7 @@
         </ul>
 
         <h3 style="color: #856404;">🫧 The Bubble & 💀 Elimination</h3>
-        <p>Players sitting outside the money but mathematically capable of catching the top 3 will have an <strong>On the Bubble</strong> badge. You will see a strikethrough and <strong>💀 Eliminated</strong> badge next to your name if your <em>Max Potential Score</em> drops below the current score of the person holding the last money spot.</p>
+        <p>Players sitting outside the money but mathematically capable of catching the top 3 will have an <strong>On the Bubble</strong> badge. You will see a strikethrough and <strong>💀 Eliminated</strong> badge next to your name if you are officially "drawing dead" (meaning your remaining picks perfectly overlap with the leaders, or your max potential score is too low to catch them).</p>
 
         <h3>Full Transparency 🔍</h3>
         <p>We run a clean book. Use the <strong>Master Public Ledger</strong> button on the Leaderboard tab to view the raw, timestamped data from every single player in the pool.</p>
@@ -232,6 +232,7 @@
                     const answerKey = data[1]; 
                     const liveStatus = data[2]; 
 
+                    // Map the 6 Matchups to their specific Spreadsheet Columns
                     const colMap = [ [3,4], [5,6], [7,8], [9,10], [12,13], [14,15] ];
                     const matchups = ["CAR/PHI", "COL/MIN", "ANA/VGK", "BUF/MTL", "CAR/MTL", "VGK/COL"];
 
@@ -352,8 +353,17 @@
                         }
                     });
 
-                    let cutoffScore = players.length >= 3 ? players[2].score : 0;
+                    // THE SMART ELIMINATION ENGINE
                     let futurePointsAvailable = 3; 
+                    
+                    // Identify the player on the exact bubble (lowest score still in the money)
+                    let cutoffPlayer = null;
+                    for (let i = players.length - 1; i >= 0; i--) {
+                        if (players[i].payout > 0) {
+                            cutoffPlayer = players[i];
+                            break;
+                        }
+                    }
 
                     lbBody.innerHTML = '';
                     
@@ -367,8 +377,37 @@
                             picksHtml += `<div class="pick-item"><strong>${p.match}</strong>${statusHtml}<div>${text}</div></div>`;
                         });
 
-                        let trueMaxPotential = player.potential + futurePointsAvailable;
-                        let isEliminated = trueMaxPotential < cutoffScore;
+                        let isEliminated = false;
+                        
+                        // Smart Overlap Calculation
+                        if (player.payout === 0 && cutoffPlayer) {
+                            let maxCatchUp = player.score;
+                            
+                            // Check overlap for all 6 matchups
+                            for (let i = 0; i < 6; i++) {
+                                let pPick = player.picks[i];
+                                let cPick = cutoffPlayer.picks[i];
+                                
+                                if (pPick && cPick) {
+                                    let gainW = pPick.potW;
+                                    let gainG = pPick.potG;
+                                    
+                                    // If you picked the exact same outcome, you can't gain ground!
+                                    if (pPick.winner === cPick.winner && pPick.winner !== "") gainW = 0;
+                                    if (pPick.games === cPick.games && pPick.games !== 0) gainG = 0;
+                                    
+                                    maxCatchUp += (gainW + gainG);
+                                } else if (pPick) {
+                                    maxCatchUp += (pPick.potW + pPick.potG);
+                                }
+                            }
+                            // Add Stanley Cup invisible points
+                            maxCatchUp += futurePointsAvailable;
+                            
+                            if (maxCatchUp < cutoffPlayer.score) {
+                                isEliminated = true;
+                            }
+                        }
 
                         let isTied = rankGroups[player.rank].length > 1;
                         let medal = '';
