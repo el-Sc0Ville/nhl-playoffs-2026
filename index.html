@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2026 Stanley Cup Playoffs - Round 3</title>
+    <title>2026 Stanley Cup Playoffs - The Final Four</title>
     <style>
         :root { --primary: #0a1128; --secondary: #0076B6; --accent: #d32f2f; --bg: #eef2f5; --card: #ffffff; --money: #2e7d32; }
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: var(--bg); background-image: radial-gradient(circle at 50% 0%, #ffffff 0%, #eef2f5 100%); margin: 0; padding: 0; color: #333; min-height: 100vh; }
@@ -34,16 +34,14 @@
         .matchup-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 15px; }
         .matchup-header h3 { margin: 0; font-size: 1.2rem; color: var(--primary); }
         .conference-badge { font-size: 0.75rem; font-weight: bold; padding: 4px 8px; border-radius: 4px; background: #eee; color: #555; text-transform: uppercase; letter-spacing: 1px; }
-        .pick-section { margin-bottom: 15px; }
-        .pick-section h4 { margin: 0 0 10px 0; font-size: 0.95rem; color: #555; }
-        .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .games-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
-        .radio-label { display: flex; justify-content: center; align-items: center; padding: 12px 5px; border: 2px solid #e0e0e0; border-radius: 8px; cursor: pointer; transition: all 0.2s; font-weight: 700; font-size: 0.95rem; text-align: center; }
-        input[type="radio"] { display: none; }
-        input[type="radio"]:checked + .radio-label { border-color: var(--secondary); background-color: #e6f4ff; color: var(--secondary); border-width: 3px; }
         
-        button[type="submit"] { background-color: var(--accent); color: white; border: none; padding: 18px 30px; font-size: 1.2rem; font-weight: bold; border-radius: 50px; cursor: pointer; width: 100%; box-shadow: 0 4px 15px rgba(200, 16, 46, 0.3); transition: transform 0.1s; text-transform: uppercase; letter-spacing: 1px; }
-        button[type="submit"]:active { transform: scale(0.98); }
+        /* New Bracket Styles */
+        .bracket-layout { display: flex; justify-content: space-between; align-items: stretch; background: var(--card); padding: 25px 15px; border-radius: 12px; box-shadow: 0 6px 15px rgba(0,0,0,0.08); margin-bottom: 25px; border-top: 6px solid var(--secondary); }
+        .bracket-col { display: flex; flex-direction: column; width: 32%; justify-content: center; }
+        .bracket-team { background: #f8fafc; padding: 12px 5px; border-radius: 8px; font-weight: 800; text-align: center; border: 2px solid #e0e4e8; font-size: 0.9rem; box-shadow: inset 0 -2px 0 rgba(0,0,0,0.05); }
+        .bracket-center { width: 30%; text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .bracket-cup { background: linear-gradient(135deg, #FFD700 0%, #FDB931 100%); color: #000; padding: 15px 10px; border-radius: 12px; font-weight: 900; font-size: 1rem; box-shadow: 0 6px 20px rgba(255, 215, 0, 0.4); text-transform: uppercase; line-height: 1.3; }
+        .conf-title { text-align: center; font-size: 0.8rem; color: #888; font-weight: 900; text-transform: uppercase; margin-bottom: 15px; letter-spacing: 1px; }
 
         .leaderboard-container { background: var(--card); border-radius: 16px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.08); }
         .lb-header { display: flex; background: var(--primary); color: white; padding: 18px 20px; font-weight: 800; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 1px; }
@@ -58,7 +56,6 @@
         .score-potential { font-size: 0.8rem; color: #888; font-weight: 700; margin-top: 4px; }
         .itm-badge { font-size: 0.8rem; background: #e8f5e9; color: var(--money); padding: 4px 8px; border-radius: 6px; font-weight: 900; margin-top: 6px; display: inline-block; border: 1px solid #c8e6c9; }
         
-        /* Eliminated Player Styles */
         .eliminated-row { opacity: 0.65; background: #fafafa !important; }
         .eliminated-row .player-name-text { text-decoration: line-through; color: #777; }
         .eliminated-row .lb-rank { filter: grayscale(100%); }
@@ -95,7 +92,7 @@
     
     <div class="nav-buttons">
         <button class="nav-btn" onclick="loadLeaderboard()" id="tab-board">Leaderboard</button>
-        <button class="nav-btn" onclick="switchTab('picks')" id="tab-picks">Make Picks</button>
+        <button class="nav-btn" onclick="switchTab('picks')" id="tab-picks">The Final Four 🏒</button>
         <button class="nav-btn" onclick="switchTab('info')" id="tab-info">Rules & Info</button>
     </div>
 
@@ -135,11 +132,6 @@
             </a>
         </div>
 
-        <div class="urgent-box" style="text-align: center; margin-top: 0; margin-bottom: 25px; border-color: var(--secondary); background: #e6f4ff; box-shadow: 0 4px 15px rgba(0, 118, 182, 0.15);">
-            <h3 style="margin-top: 0; color: var(--secondary); font-weight: 900; font-size: 1.3rem;">🚨 Last Call for Round 3!</h3>
-            <p style="font-size: 1rem; color: #333; margin-top: 0; line-height: 1.4;">The puck has dropped on VGK vs COL, but you can still submit your picks for the <strong>East Final (CAR vs MTL)</strong> before tomorrow's game!</p>
-        </div>
-
         <div class="leaderboard-container">
             <div class="lb-header">
                 <div class="lb-rank">Rank</div>
@@ -155,99 +147,65 @@
     </div>
 
     <div id="picks-view">
-        <form name="submit-to-google-sheet" novalidate id="picks-form">
+        
+        <div class="info-content" style="margin-bottom: 25px;">
+            <h2 style="font-size: 1.6rem; margin-bottom: 10px;">The Final Four Bloodbath 🩸</h2>
+            <p style="font-size: 1.05rem; line-height: 1.5; color: #444;">The dust has settled, the Cinderellas have danced, and the puck has officially dropped on both Conference Finals. The betting window is now <strong>CLOSED</strong>.</p>
             
-            <div class="urgent-box" style="margin-top: 0; border-color: var(--secondary); background: #e6f4ff;">
-                <h3 style="margin-top: 0; color: var(--secondary); font-weight: 900;">🚨 EAST FINAL OPEN</h3>
-                <p style="font-size: 1rem; color: #333; line-height: 1.5; margin-bottom: 0;">The West Final is officially locked, but you can still lock in your picks for the East (CAR vs MTL) before the puck drops tomorrow.</p>
-            </div>
+            <h3 style="color: var(--money); margin-top: 20px;">The Bubble Watch 💰</h3>
+            <p style="font-size: 1rem; line-height: 1.5; color: #444; margin-bottom: 0;">With a massive $1,350 pot hanging in the balance, every single goal matters. We have leaders sweating bullets, mid-pack grinders praying for 7-game series, and mathematically eliminated players haunting the board like ghosts. If you're hovering near 3rd place, buckle up—the parity is insane, and the tie-breaker pot splits are threatening to create some serious drama!</p>
+        </div>
 
-            <div id="form-inputs" style="display: none;">
-                <div class="info-card">
-                    <p style="margin-top: 0; color: var(--accent); font-weight: bold;">⚠️ Please use the EXACT same Alias you used in Round 1!</p>
-                    <div class="input-group">
-                        <label>Email Address</label>
-                        <input type="email" name="Email">
-                    </div>
-                    <div class="input-group">
-                        <label>Alias / Nickname</label>
-                        <input type="text" name="Alias">
-                    </div>
+        <div class="bracket-layout">
+            <div class="bracket-col">
+                <div class="conf-title">Eastern Final</div>
+                <div style="border-right: 3px solid #ccc; padding-right: 15px; margin-right: 5px;">
+                    <div class="bracket-team" style="margin-bottom: 10px; border-color: #ce1126; color: #ce1126;">CAR 🌪️</div>
+                    <div class="bracket-team" style="border-color: #AF1E2D; color: #AF1E2D;">MTL 🏆</div>
                 </div>
             </div>
             
-            <div id="matchups-container"></div>
-
-            <script>
-                // M1 to M4 are Round 2. M5 and M6 are Round 3.
-                const matchupsForm = [
-                    // M4: Buffalo vs Montreal - LOCKED
-                    { id: 4, team1: "Buffalo 🦬", val1: "BUF", team2: "Montreal 🏆", val2: "MTL", conf: "Round 2", locked: true, lockMsg: "🔒 Series Ended" },
-                    
-                    // ROUND 3 - WEST LOCKED, EAST OPEN
-                    { id: 5, team1: "Carolina 🌪️", val1: "CAR", team2: "Montreal 🏆", val2: "MTL", conf: "East Final", locked: false },
-                    { id: 6, team1: "Vegas 🎰", val1: "VGK", team2: "Colorado 🏔️", val2: "COL", conf: "West Final", locked: true, lockMsg: "🔒 Puck Dropped" }
-                ];
-
-                let hasOpenMatchups = false;
-                let htmlToInject = "";
-
-                matchupsForm.forEach(m => {
-                    if (m.locked) {
-                        htmlToInject += `
-                            <div class="matchup-card" style="opacity: 0.6; border: 2px dashed #ccc; filter: grayscale(30%);">
-                                <div class="matchup-header" style="border-bottom: none; margin-bottom: 0;">
-                                    <h3 style="color: #666;">${m.team1} vs. ${m.team2}</h3>
-                                    <span class="status-badge" style="background: #e0e4e8; color: #444; border: 1px solid #ccc;">${m.lockMsg}</span>
-                                </div>
-                            </div>
-                        `;
-                    } else {
-                        hasOpenMatchups = true;
-                        htmlToInject += `
-                            <div class="matchup-card">
-                                <div class="matchup-header">
-                                    <h3>${m.team1} vs. ${m.team2}</h3>
-                                    <span class="conference-badge" style="background: var(--secondary); color: white;">${m.conf}</span>
-                                </div>
-                                <div class="pick-section">
-                                    <h4>Series Winner:</h4>
-                                    <div class="options-grid">
-                                        <label><input type="radio" name="M${m.id}_Winner" value="${m.val1}" required><div class="radio-label">${m.team1}</div></label>
-                                        <label><input type="radio" name="M${m.id}_Winner" value="${m.val2}"><div class="radio-label">${m.team2}</div></label>
-                                    </div>
-                                </div>
-                                <div class="pick-section">
-                                    <h4>Total Games:</h4>
-                                    <div class="games-grid">
-                                        <label><input type="radio" name="M${m.id}_Games" value="4" required><div class="radio-label">4</div></label>
-                                        <label><input type="radio" name="M${m.id}_Games" value="5"><div class="radio-label">5</div></label>
-                                        <label><input type="radio" name="M${m.id}_Games" value="6"><div class="radio-label">6</div></label>
-                                        <label><input type="radio" name="M${m.id}_Games" value="7"><div class="radio-label">7</div></label>
-                                    </div>
-                                </div>
-                            </div>
-                        `;
-                    }
-                });
-
-                document.getElementById('matchups-container').innerHTML = htmlToInject;
-
-                if (hasOpenMatchups) {
-                    document.getElementById('form-inputs').style.display = 'block';
-                    document.getElementById('form-inputs').querySelectorAll('input').forEach(i => i.required = true);
-                    document.getElementById('matchups-container').innerHTML += `<button type="submit" id="submit-btn">Lock In Picks 🔒</button>`;
-                }
-            </script>
-
-        </form>
-        <div class="loading">Submitting your picks to the ice... 🧊</div>
-        
-        <div class="success-message" id="success-msg">
-            <h2>🚨 HE SCORES! 🚨</h2>
-            <p>Your picks are officially locked in.</p>
-            <button onclick="document.getElementById('success-msg').style.display='none'; loadLeaderboard();" style="padding: 12px 24px; margin-top: 10px; background: var(--primary); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%;">View Leaderboard</button>
+            <div class="bracket-center">
+                <div style="font-size: 1.8rem; margin-bottom: 15px; opacity: 0.8;">⚔️</div>
+                <div class="bracket-cup">Stanley<br>Cup</div>
+            </div>
+            
+            <div class="bracket-col">
+                <div class="conf-title">Western Final</div>
+                <div style="border-left: 3px solid #ccc; padding-left: 15px; margin-left: 5px;">
+                    <div class="bracket-team" style="margin-bottom: 10px; border-color: #bfa15f; color: #bfa15f;">VGK 🎰</div>
+                    <div class="bracket-team" style="border-color: #6F263D; color: #6F263D;">COL 🏔️</div>
+                </div>
+            </div>
         </div>
+
+        <div id="matchups-container"></div>
+
+        <script>
+            // Both are now completely locked since puck dropped
+            const matchupsForm = [
+                { id: 5, team1: "Carolina 🌪️", val1: "CAR", team2: "Montreal 🏆", val2: "MTL", conf: "East Final", locked: true, lockMsg: "🔒 Puck Dropped" },
+                { id: 6, team1: "Vegas 🎰", val1: "VGK", team2: "Colorado 🏔️", val2: "COL", conf: "West Final", locked: true, lockMsg: "🔒 Puck Dropped" }
+            ];
+
+            let htmlToInject = "";
+
+            matchupsForm.forEach(m => {
+                if (m.locked) {
+                    htmlToInject += `
+                        <div class="matchup-card" style="opacity: 0.7; border: 2px dashed #ccc; filter: grayscale(20%); background: #f8fafc;">
+                            <div class="matchup-header" style="border-bottom: none; margin-bottom: 0;">
+                                <h3 style="color: #555;">${m.team1} vs. ${m.team2}</h3>
+                                <span class="status-badge" style="background: #e0e4e8; color: #444; border: 1px solid #ccc;">${m.lockMsg}</span>
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+
+            document.getElementById('matchups-container').innerHTML = htmlToInject;
+        </script>
+
     </div>
 
 </div>
@@ -488,70 +446,6 @@
             });
     }
 
-    const form = document.forms['submit-to-google-sheet'];
-    const loading = document.querySelector('.loading');
-    const successMsg = document.getElementById('success-msg');
-
-    if (form) {
-        form.addEventListener('submit', e => {
-            e.preventDefault();
-            if (!form.checkValidity()) { form.reportValidity(); return; }
-
-            const submittedAlias = form.elements['Alias'].value.trim().toLowerCase();
-            const existingPlayer = window.poolPlayers ? window.poolPlayers.find(p => p.alias.toLowerCase() === submittedAlias) : null;
-
-            if (existingPlayer) {
-                let alreadyPicked = false;
-                
-                // Dynamically check ONLY the matchups that are still open!
-                const openMatchupIds = matchupsForm.filter(m => !m.locked).map(m => m.id);
-                
-                openMatchupIds.forEach(id => {
-                    let pickIndex = id - 1; // Array index
-                    if (existingPlayer.picks[pickIndex] && existingPlayer.picks[pickIndex].winner !== "") {
-                        alreadyPicked = true;
-                    }
-                });
-
-                if (alreadyPicked) {
-                    alert("🚨 Penalty on the play! It looks like you've already submitted picks for these matchups. If you need an audible, please contact the Commish directly.");
-                    return;
-                }
-            }
-            
-            const submitButton = document.getElementById('submit-btn');
-            submitButton.disabled = true;
-            submitButton.innerText = "Checking with the refs...";
-            loading.style.display = 'block';
-
-            fetch(scriptURL, { method: 'POST', body: new FormData(form)})
-                .then(response => response.json())
-                .then(data => {
-                    loading.style.display = 'none';
-                    if (data.result === 'duplicate_error') {
-                        submitButton.disabled = false;
-                        submitButton.innerText = "Lock In Picks 🔒";
-                        alert("🚨 Penalty on the play! You already have picks on file for these matchups.");
-                        return;
-                    }
-                    if (data.result === 'unknown_alias_error') {
-                        submitButton.disabled = false;
-                        submitButton.innerText = "Lock In Picks 🔒";
-                        alert("🚨 Invalid Alias! We couldn't find that name in the system.");
-                        return;
-                    }
-                    form.style.display = 'none';
-                    successMsg.style.display = 'block';
-                    form.reset();
-                })
-                .catch(error => {
-                    submitButton.disabled = false;
-                    submitButton.innerText = "Lock In Picks 🔒";
-                    loading.style.display = 'none';
-                    alert("Something went wrong with the connection. Please try again!");
-                });
-        });
-    }
 </script>
 
 </body>
