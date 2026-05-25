@@ -47,7 +47,6 @@
         /* Badges */
         .itm-badge { font-size: 0.8rem; background: #e8f5e9; color: var(--money); padding: 4px 8px; border-radius: 6px; font-weight: 900; margin-top: 6px; display: inline-block; border: 1px solid #c8e6c9; }
         
-        /* The Three Tiers of Hope */
         .hunt-badge { font-size: 0.75rem; background: #ffebee; color: #c62828; padding: 4px 8px; border-radius: 6px; font-weight: 800; margin-top: 6px; display: inline-block; border: 1px solid #ffcdd2; transition: all 0.2s; }
         .bubble-badge { font-size: 0.75rem; background: #fff3cd; color: #856404; padding: 4px 8px; border-radius: 6px; font-weight: 800; margin-top: 6px; display: inline-block; border: 1px solid #ffeeba; transition: all 0.2s; }
         .miracle-badge { font-size: 0.75rem; background: #e8eaf6; color: #283593; padding: 4px 8px; border-radius: 6px; font-weight: 800; margin-top: 6px; display: inline-block; border: 1px solid #c5cae9; transition: all 0.2s; }
@@ -63,12 +62,15 @@
         .lb-row.rank-2 { background: linear-gradient(to right, #f8f9fa, #ffffff); border-left: 6px solid #C0C0C0; }
         .lb-row.rank-3 { background: linear-gradient(to right, #fdf8f4, #ffffff); border-left: 6px solid #CD7F32; }
         
-        .lb-details { display: none; padding: 20px; background-color: #f4f6f8; border-bottom: 3px solid #e0e4e8; box-shadow: inset 0 4px 8px rgba(0,0,0,0.03); }
-        .picks-grid-summary { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 0.9rem; }
-        .pick-item { background: white; padding: 12px 10px; border-radius: 10px; border: 1px solid #e0e4e8; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
-        .pick-item strong { display: block; color: var(--primary); margin-bottom: 6px; font-size: 0.95rem; font-weight: 800; }
+        /* Updated details container for compactness */
+        .lb-details { display: none; padding: 15px 20px 20px; background-color: #f4f6f8; border-bottom: 3px solid #e0e4e8; box-shadow: inset 0 4px 8px rgba(0,0,0,0.03); }
+        .round-divider { font-size: 0.75rem; font-weight: 900; color: #888; text-transform: uppercase; margin: 15px 0 8px; border-bottom: 2px solid #e0e4e8; padding-bottom: 4px; letter-spacing: 1px; }
+        .round-divider:first-child { margin-top: 0; }
+        .picks-grid-summary { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 0.85rem; }
+        .pick-item { background: white; padding: 10px 8px; border-radius: 8px; border: 1px solid #e0e4e8; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        .pick-item strong { display: block; color: var(--primary); margin-bottom: 4px; font-size: 0.9rem; font-weight: 800; }
         
-        .status-badge { font-size: 0.75rem; background: #e3f2fd; color: var(--secondary); font-weight: 800; padding: 4px 8px; border-radius: 6px; display: inline-block; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; border: 1px solid #bbdefb; }
+        .status-badge { font-size: 0.7rem; background: #e3f2fd; color: var(--secondary); font-weight: 800; padding: 3px 6px; border-radius: 4px; display: inline-block; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; border: 1px solid #bbdefb; }
         .dead-pick { color: #c62828; text-decoration: line-through; font-weight: 900; background: #ffebee; padding: 2px 6px; border-radius: 6px; border: 1px dashed #ffcdd2; display: inline-block; }
         
         .refresh-btn { width: 100%; padding: 16px; background: #111; color: white; border: none; border-radius: 12px; margin-top: 15px; font-weight: 800; cursor: pointer; transition: 0.2s; font-size: 1.05rem; box-shadow: 0 6px 15px rgba(0,0,0,0.15); }
@@ -319,12 +321,13 @@
                                     games: userG,
                                     status: liveStatus[wIdx] || "",
                                     potW: potW,
-                                    potG: potG
+                                    potG: potG,
+                                    round: i < 4 ? 2 : 3 // Tagger for sorting
                                 });
                             }
                         }
 
-                        return { alias: row[2], score: pScore, potential: pPotential, picks: playerPicks };
+                        return { alias: row[2], score: pScore, potential: pPotential, picks: playerPicks, r1Score: r1Score };
                     });
 
                     players = players.filter(p => p.alias && p.alias !== "");
@@ -365,7 +368,6 @@
                         }
                     });
 
-                    // THE SMART ELIMINATION ENGINE
                     let futurePointsAvailable = 3; 
                     
                     let cutoffPlayer = null;
@@ -381,17 +383,45 @@
                     let overlapExplanation = "Your status is based on Head-to-Head Overlap logic! We calculate your exact path to catching the players currently in the money based on your remaining picks versus theirs. If you picked the exact same teams/games as them, you cannot mathematically gain ground.";
                     
                     players.forEach((player, index) => {
+                        
+                        // NEW TIERED COMPACT ARCHIVE BUILDER
+                        let r3Picks = player.picks.filter(p => p.round === 3);
+                        let r2Picks = player.picks.filter(p => p.round === 2);
+                        
                         let picksHtml = '';
-                        player.picks.forEach(p => {
-                            let textW = p.potW > 0 ? p.winner : `<span class="dead-pick">${p.winner}</span>`;
-                            let textG = p.potG > 0 ? `in ${p.games}` : `in <span class="dead-pick">${p.games}</span>`;
-                            let text = p.winner ? `${textW} <br> ${textG}` : "No Pick";
-                            let statusHtml = (p.status && p.status !== "") ? `<div class="status-badge">${p.status}</div>` : ``;
-                            picksHtml += `<div class="pick-item"><strong>${p.match}</strong>${statusHtml}<div>${text}</div></div>`;
-                        });
+                        
+                        if (r3Picks.length > 0) {
+                            picksHtml += `<div class="round-divider">Round 3 Picks</div><div class="picks-grid-summary">`;
+                            r3Picks.forEach(p => {
+                                let textW = p.potW > 0 ? p.winner : `<span class="dead-pick">${p.winner}</span>`;
+                                let textG = p.potG > 0 ? `in ${p.games}` : `in <span class="dead-pick">${p.games}</span>`;
+                                let text = p.winner ? `${textW} <br> ${textG}` : "No Pick";
+                                let statusHtml = (p.status && p.status !== "") ? `<div class="status-badge">${p.status}</div>` : ``;
+                                picksHtml += `<div class="pick-item"><strong>${p.match}</strong>${statusHtml}<div>${text}</div></div>`;
+                            });
+                            picksHtml += `</div>`;
+                        }
+
+                        if (r2Picks.length > 0) {
+                            picksHtml += `<div class="round-divider">Round 2 Archive</div><div class="picks-grid-summary">`;
+                            r2Picks.forEach(p => {
+                                let textW = p.potW > 0 ? p.winner : `<span class="dead-pick">${p.winner}</span>`;
+                                let textG = p.potG > 0 ? `in ${p.games}` : `in <span class="dead-pick">${p.games}</span>`;
+                                let text = p.winner ? `${textW} <br> ${textG}` : "No Pick";
+                                let statusHtml = (p.status && p.status !== "") ? `<div class="status-badge">${p.status}</div>` : ``;
+                                picksHtml += `<div class="pick-item"><strong>${p.match}</strong>${statusHtml}<div>${text}</div></div>`;
+                            });
+                            picksHtml += `</div>`;
+                        }
+
+                        // Static Round 1 Banner
+                        picksHtml += `<div class="round-divider">Round 1 Context</div>
+                                      <div style="font-size:0.95rem; color:#444; text-align:center; padding: 10px; background:#fff; border-radius:8px; border:1px solid #e0e4e8; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+                                        <strong>Round 1 Total:</strong> <span style="color:var(--secondary); font-weight:900;">${player.r1Score} pts</span>
+                                      </div>`;
 
                         let isEliminated = false;
-                        let maxCatchUp = player.score; // Track their ceiling relative to the cutoff
+                        let maxCatchUp = player.score; 
                         
                         if (player.payout === 0 && cutoffPlayer) {
                             for (let i = 0; i < 6; i++) {
@@ -402,7 +432,6 @@
                                     let gainW = pPick.potW;
                                     let gainG = pPick.potG;
                                     
-                                    // Overlap logic: zero gain if picked the same thing
                                     if (pPick.winner === cPick.winner && pPick.winner !== "") gainW = 0;
                                     if (pPick.games === cPick.games && pPick.games !== 0) gainG = 0;
                                     
@@ -411,9 +440,8 @@
                                     maxCatchUp += (pPick.potW + pPick.potG);
                                 }
                             }
-                            // Add Stanley Cup invisible points
                             maxCatchUp += futurePointsAvailable;
-                            player.maxCatchUp = maxCatchUp; // Save it to the object
+                            player.maxCatchUp = maxCatchUp; 
                             
                             if (maxCatchUp < cutoffPlayer.score) {
                                 isEliminated = true;
@@ -436,11 +464,9 @@
 
                         if (pointsOnBoard) {
                             if (player.payout > 0) {
-                                // IN THE MONEY
                                 let formattedPayout = player.payout % 1 === 0 ? player.payout : player.payout.toFixed(2);
                                 payoutBadge = `<div class="itm-badge">+$${formattedPayout}</div>`;
                             } else if (!isEliminated) {
-                                // TIERED BUBBLE LOGIC
                                 let margin = player.maxCatchUp - cutoffPlayer.score;
                                 
                                 if (margin >= 3) {
@@ -451,7 +477,6 @@
                                     payoutBadge = `<div class="miracle-badge" style="cursor:help;" onclick="alert('${overlapExplanation}'); event.stopPropagation();">🙏 Need a Miracle ⓘ</div>`;
                                 }
                             } else {
-                                // DEAD
                                 rowClass += ' eliminated-row';
                                 payoutBadge = `<div class="skull-badge" style="cursor:help;" onclick="alert('${overlapExplanation}'); event.stopPropagation();">💀 Eliminated ⓘ</div>`;
                             }
@@ -470,9 +495,7 @@
                                 </div>
                             </div>
                             <div class="lb-details" id="details-${index}">
-                                <div class="picks-grid-summary">
-                                    ${picksHtml}
-                                </div>
+                                ${picksHtml}
                             </div>
                         `;
                     });
