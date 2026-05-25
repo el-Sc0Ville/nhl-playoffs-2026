@@ -71,7 +71,11 @@
         .pick-item strong { display: block; color: var(--primary); margin-bottom: 4px; font-size: 0.9rem; font-weight: 800; }
         
         .status-badge { font-size: 0.7rem; background: #e3f2fd; color: var(--secondary); font-weight: 800; padding: 3px 6px; border-radius: 4px; display: inline-block; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; border: 1px solid #bbdefb; }
+        
+        /* WIN/LOSS PICK STYLES */
         .dead-pick { color: #c62828; text-decoration: line-through; font-weight: 900; background: #ffebee; padding: 2px 6px; border-radius: 6px; border: 1px dashed #ffcdd2; display: inline-block; }
+        .won-pick { color: #1b5e20; font-weight: 900; background: #e8f5e9; padding: 2px 6px; border-radius: 6px; border: 1px solid #c8e6c9; display: inline-block; }
+        .pending-pick { color: #333; font-weight: 700; }
         
         .refresh-btn { width: 100%; padding: 16px; background: #111; color: white; border: none; border-radius: 12px; margin-top: 15px; font-weight: 800; cursor: pointer; transition: 0.2s; font-size: 1.05rem; box-shadow: 0 6px 15px rgba(0,0,0,0.15); }
         .refresh-btn:hover { background: #333; transform: translateY(-2px); }
@@ -322,7 +326,10 @@
                                     status: liveStatus[wIdx] || "",
                                     potW: potW,
                                     potG: potG,
-                                    round: i < 4 ? 2 : 3 // Tagger for sorting
+                                    round: i < 4 ? 2 : 3,
+                                    isSeriesOver: isSeriesOver,
+                                    ansW: ansW,
+                                    ansG: ansG
                                 });
                             }
                         }
@@ -384,37 +391,48 @@
                     
                     players.forEach((player, index) => {
                         
-                        // NEW TIERED COMPACT ARCHIVE BUILDER
                         let r3Picks = player.picks.filter(p => p.round === 3);
                         let r2Picks = player.picks.filter(p => p.round === 2);
                         
                         let picksHtml = '';
+
+                        // Helper function to build the win/loss/pending visual for each pick
+                        const buildPickVisual = (p) => {
+                            let textW = "";
+                            if (p.potW === 0) {
+                                textW = `<span class="dead-pick">❌ ${p.winner}</span>`;
+                            } else if (p.isSeriesOver && p.winner === p.ansW) {
+                                textW = `<span class="won-pick">✅ ${p.winner}</span>`;
+                            } else {
+                                textW = `<span class="pending-pick">${p.winner}</span>`;
+                            }
+
+                            let textG = "";
+                            if (p.potG === 0) {
+                                textG = `in <span class="dead-pick">❌ ${p.games}</span>`;
+                            } else if (p.isSeriesOver && parseInt(p.games) === parseInt(p.ansG)) {
+                                textG = `in <span class="won-pick">✅ ${p.games}</span>`;
+                            } else {
+                                textG = `in <span class="pending-pick">${p.games}</span>`;
+                            }
+
+                            let text = p.winner ? `${textW} <br> ${textG}` : "No Pick";
+                            let statusHtml = (p.status && p.status !== "") ? `<div class="status-badge">${p.status}</div>` : ``;
+                            return `<div class="pick-item"><strong>${p.match}</strong>${statusHtml}<div>${text}</div></div>`;
+                        };
                         
                         if (r3Picks.length > 0) {
                             picksHtml += `<div class="round-divider">Round 3 Picks</div><div class="picks-grid-summary">`;
-                            r3Picks.forEach(p => {
-                                let textW = p.potW > 0 ? p.winner : `<span class="dead-pick">${p.winner}</span>`;
-                                let textG = p.potG > 0 ? `in ${p.games}` : `in <span class="dead-pick">${p.games}</span>`;
-                                let text = p.winner ? `${textW} <br> ${textG}` : "No Pick";
-                                let statusHtml = (p.status && p.status !== "") ? `<div class="status-badge">${p.status}</div>` : ``;
-                                picksHtml += `<div class="pick-item"><strong>${p.match}</strong>${statusHtml}<div>${text}</div></div>`;
-                            });
+                            r3Picks.forEach(p => picksHtml += buildPickVisual(p));
                             picksHtml += `</div>`;
                         }
 
                         if (r2Picks.length > 0) {
                             picksHtml += `<div class="round-divider">Round 2 Archive</div><div class="picks-grid-summary">`;
-                            r2Picks.forEach(p => {
-                                let textW = p.potW > 0 ? p.winner : `<span class="dead-pick">${p.winner}</span>`;
-                                let textG = p.potG > 0 ? `in ${p.games}` : `in <span class="dead-pick">${p.games}</span>`;
-                                let text = p.winner ? `${textW} <br> ${textG}` : "No Pick";
-                                let statusHtml = (p.status && p.status !== "") ? `<div class="status-badge">${p.status}</div>` : ``;
-                                picksHtml += `<div class="pick-item"><strong>${p.match}</strong>${statusHtml}<div>${text}</div></div>`;
-                            });
+                            r2Picks.forEach(p => picksHtml += buildPickVisual(p));
                             picksHtml += `</div>`;
                         }
 
-                        // Static Round 1 Banner
                         picksHtml += `<div class="round-divider">Round 1 Context</div>
                                       <div style="font-size:0.95rem; color:#444; text-align:center; padding: 10px; background:#fff; border-radius:8px; border:1px solid #e0e4e8; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
                                         <strong>Round 1 Total:</strong> <span style="color:var(--secondary); font-weight:900;">${player.r1Score} pts</span>
