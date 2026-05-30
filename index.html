@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2026 Stanley Cup Playoffs - The Final Four</title>
+    <title>2026 Stanley Cup Playoffs - The Final</title>
     <style>
         :root { --primary: #0a1128; --secondary: #0076B6; --accent: #d32f2f; --bg: #eef2f5; --card: #ffffff; --money: #2e7d32; }
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: var(--bg); background-image: radial-gradient(circle at 50% 0%, #ffffff 0%, #eef2f5 100%); margin: 0; padding: 0; color: #333; min-height: 100vh; }
@@ -25,12 +25,31 @@
         .info-content h2 { color: var(--primary); margin-top: 0; border-bottom: 2px solid #f0f2f5; padding-bottom: 12px; font-weight: 900;}
         .info-content h3 { color: var(--secondary); margin-top: 25px; margin-bottom: 12px; font-weight: 800;}
         
+        .input-group { margin-bottom: 15px; }
+        .input-group label { font-weight: bold; display: block; margin-bottom: 8px; font-size: 0.95rem; }
+        input[type="text"], input[type="email"] { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 16px; box-sizing: border-box; }
+        
         .bracket-layout { display: flex; justify-content: space-between; align-items: stretch; background: var(--card); padding: 25px 15px; border-radius: 12px; box-shadow: 0 6px 15px rgba(0,0,0,0.08); margin-bottom: 25px; border-top: 6px solid var(--secondary); }
         .bracket-col { display: flex; flex-direction: column; width: 32%; justify-content: center; }
-        .bracket-team { background: #f8fafc; padding: 12px 5px; border-radius: 8px; font-weight: 800; text-align: center; border: 2px solid #e0e4e8; font-size: 0.9rem; box-shadow: inset 0 -2px 0 rgba(0,0,0,0.05); }
+        .bracket-team { background: #f8fafc; padding: 12px 5px; border-radius: 8px; font-weight: 900; text-align: center; border: 3px solid #e0e4e8; font-size: 1.1rem; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
         .bracket-center { width: 30%; text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center; }
         .bracket-cup { background: linear-gradient(135deg, #FFD700 0%, #FDB931 100%); color: #000; padding: 15px 10px; border-radius: 12px; font-weight: 900; font-size: 1rem; box-shadow: 0 6px 20px rgba(255, 215, 0, 0.4); text-transform: uppercase; line-height: 1.3; }
         .conf-title { text-align: center; font-size: 0.8rem; color: #888; font-weight: 900; text-transform: uppercase; margin-bottom: 15px; letter-spacing: 1px; }
+
+        .matchup-card { background: var(--card); border-radius: 12px; padding: 20px; margin-bottom: 25px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .matchup-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 15px; }
+        .matchup-header h3 { margin: 0; font-size: 1.2rem; color: var(--primary); }
+        .conference-badge { font-size: 0.75rem; font-weight: bold; padding: 4px 8px; border-radius: 4px; background: #FFD700; color: #000; text-transform: uppercase; letter-spacing: 1px; }
+        .pick-section { margin-bottom: 15px; }
+        .pick-section h4 { margin: 0 0 10px 0; font-size: 0.95rem; color: #555; }
+        .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .games-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+        .radio-label { display: flex; justify-content: center; align-items: center; padding: 12px 5px; border: 2px solid #e0e0e0; border-radius: 8px; cursor: pointer; transition: all 0.2s; font-weight: 700; font-size: 0.95rem; text-align: center; }
+        input[type="radio"] { display: none; }
+        input[type="radio"]:checked + .radio-label { border-color: var(--secondary); background-color: #e6f4ff; color: var(--secondary); border-width: 3px; }
+        
+        button[type="submit"] { background-color: var(--accent); color: white; border: none; padding: 18px 30px; font-size: 1.2rem; font-weight: bold; border-radius: 50px; cursor: pointer; width: 100%; box-shadow: 0 4px 15px rgba(200, 16, 46, 0.3); transition: transform 0.1s; text-transform: uppercase; letter-spacing: 1px; }
+        button[type="submit"]:active { transform: scale(0.98); }
 
         .leaderboard-container { background: var(--card); border-radius: 16px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.08); }
         .lb-header { display: flex; background: var(--primary); color: white; padding: 18px 20px; font-weight: 800; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 1px; }
@@ -62,7 +81,6 @@
         .lb-row.rank-2 { background: linear-gradient(to right, #f8f9fa, #ffffff); border-left: 6px solid #C0C0C0; }
         .lb-row.rank-3 { background: linear-gradient(to right, #fdf8f4, #ffffff); border-left: 6px solid #CD7F32; }
         
-        /* Updated details container for compactness */
         .lb-details { display: none; padding: 15px 20px 20px; background-color: #f4f6f8; border-bottom: 3px solid #e0e4e8; box-shadow: inset 0 4px 8px rgba(0,0,0,0.03); }
         .round-divider { font-size: 0.75rem; font-weight: 900; color: #888; text-transform: uppercase; margin: 15px 0 8px; border-bottom: 2px solid #e0e4e8; padding-bottom: 4px; letter-spacing: 1px; }
         .round-divider:first-child { margin-top: 0; }
@@ -72,7 +90,6 @@
         
         .status-badge { font-size: 0.7rem; background: #e3f2fd; color: var(--secondary); font-weight: 800; padding: 3px 6px; border-radius: 4px; display: inline-block; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; border: 1px solid #bbdefb; }
         
-        /* WIN/LOSS PICK STYLES */
         .dead-pick { color: #c62828; text-decoration: line-through; font-weight: 900; background: #ffebee; padding: 2px 6px; border-radius: 6px; border: 1px dashed #ffcdd2; display: inline-block; }
         .won-pick { color: #1b5e20; font-weight: 900; background: #e8f5e9; padding: 2px 6px; border-radius: 6px; border: 1px solid #c8e6c9; display: inline-block; }
         .pending-pick { color: #333; font-weight: 700; }
@@ -94,12 +111,12 @@
     
     <div class="nav-buttons">
         <button class="nav-btn" onclick="loadLeaderboard()" id="tab-board">Leaderboard</button>
-        <button class="nav-btn" onclick="switchTab('picks')" id="tab-picks">The Final Four 🏒</button>
+        <button class="nav-btn" onclick="switchTab('picks')" id="tab-picks">The Finals 🏆</button>
         <button class="nav-btn" onclick="switchTab('info')" id="tab-info">Rules & Info</button>
     </div>
 
     <div id="info-view" class="info-content">
-        <h2>The Mid-Playoff Check-In 🧊</h2>
+        <h2>The Final Countdown 🧊</h2>
         
         <h3>The Buy-In & Points System 💰📈</h3>
         <p>A quick reminder: Your $50 entry fee covers you for the <strong>entire playoffs</strong>. All points you earn <strong>carry over</strong> from round to round! You are never truly mathematically out until the final buzzer sounds.</p>
@@ -156,21 +173,15 @@
 
     <div id="picks-view">
         
-        <div class="info-content" style="margin-bottom: 25px;">
-            <h2 style="font-size: 1.6rem; margin-bottom: 10px;">The Final Four Bloodbath 🩸</h2>
-            <p style="font-size: 1.05rem; line-height: 1.5; color: #444;">The dust has settled, the Cinderellas have danced, and the puck has officially dropped on both Conference Finals. The betting window is now <strong>CLOSED</strong>.</p>
-            
-            <h3 style="color: var(--money); margin-top: 20px;">The Bubble Watch 💰</h3>
-            <p style="font-size: 1rem; line-height: 1.5; color: #444; margin-bottom: 0;">With a massive $1,350 pot hanging in the balance, every single goal matters. We have leaders sweating bullets, hunters closing in, and mathematically eliminated players haunting the board like ghosts. Buckle up—the parity is insane, and the tie-breaker pot splits are creating some serious drama!</p>
+        <div class="urgent-box" style="margin-top: 0; border-color: #FFD700; background: #fffcf0;">
+            <h3 style="margin-top: 0; color: #b8860b; font-weight: 900;">🚨 THE FINAL ROUND</h3>
+            <p style="font-size: 1rem; color: #333; line-height: 1.5; margin-bottom: 0;">This is it. The ultimate showdown for the greatest trophy in sports. Make your final picks below before Game 1!</p>
         </div>
 
         <div class="bracket-layout">
             <div class="bracket-col">
-                <div class="conf-title">Eastern Final</div>
-                <div style="border-right: 3px solid #ccc; padding-right: 15px; margin-right: 5px;">
-                    <div class="bracket-team" style="margin-bottom: 10px; border-color: #ce1126; color: #ce1126;">CAR 🌪️</div>
-                    <div class="bracket-team" style="border-color: #AF1E2D; color: #AF1E2D;">MTL 🏆</div>
-                </div>
+                <div class="conf-title">Eastern Champ</div>
+                <div class="bracket-team" style="border-color: #ce1126; color: #ce1126;">CAR 🌪️</div>
             </div>
             
             <div class="bracket-center">
@@ -179,37 +190,60 @@
             </div>
             
             <div class="bracket-col">
-                <div class="conf-title">Western Final</div>
-                <div style="border-left: 3px solid #ccc; padding-left: 15px; margin-left: 5px;">
-                    <div class="bracket-team" style="margin-bottom: 10px; border-color: #bfa15f; color: #bfa15f;">VGK 🎰</div>
-                    <div class="bracket-team" style="border-color: #6F263D; color: #6F263D;">COL 🏔️</div>
-                </div>
+                <div class="conf-title">Western Champ</div>
+                <div class="bracket-team" style="border-color: #bfa15f; color: #bfa15f;">VGK 🎰</div>
             </div>
         </div>
 
-        <div id="matchups-container"></div>
+        <form name="submit-to-google-sheet" novalidate id="picks-form">
+            <div id="form-inputs" style="display: block;">
+                <div class="info-card">
+                    <p style="margin-top: 0; color: var(--accent); font-weight: bold;">⚠️ Please use the EXACT same Alias you used in Round 1!</p>
+                    <div class="input-group">
+                        <label>Email Address</label>
+                        <input type="email" name="Email" required>
+                    </div>
+                    <div class="input-group">
+                        <label>Alias / Nickname</label>
+                        <input type="text" name="Alias" required>
+                    </div>
+                </div>
+            </div>
 
-        <script>
-            const matchupsForm = [
-                { id: 5, team1: "Carolina 🌪️", val1: "CAR", team2: "Montreal 🏆", val2: "MTL", conf: "East Final", locked: true, lockMsg: "🔒 Puck Dropped" },
-                { id: 6, team1: "Vegas 🎰", val1: "VGK", team2: "Colorado 🏔️", val2: "COL", conf: "West Final", locked: true, lockMsg: "🔒 Puck Dropped" }
-            ];
-
-            let htmlToInject = "";
-            matchupsForm.forEach(m => {
-                if (m.locked) {
-                    htmlToInject += `
-                        <div class="matchup-card" style="opacity: 0.7; border: 2px dashed #ccc; filter: grayscale(20%); background: #f8fafc;">
-                            <div class="matchup-header" style="border-bottom: none; margin-bottom: 0;">
-                                <h3 style="color: #555;">${m.team1} vs. ${m.team2}</h3>
-                                <span class="status-badge" style="background: #e0e4e8; color: #444; border: 1px solid #ccc;">${m.lockMsg}</span>
-                            </div>
+            <div id="matchups-container">
+                <div class="matchup-card">
+                    <div class="matchup-header">
+                        <h3>Carolina 🌪️ vs. Vegas 🎰</h3>
+                        <span class="conference-badge">Stanley Cup Final</span>
+                    </div>
+                    <div class="pick-section">
+                        <h4>Series Winner:</h4>
+                        <div class="options-grid">
+                            <label><input type="radio" name="M7_Winner" value="CAR" required><div class="radio-label">Carolina 🌪️</div></label>
+                            <label><input type="radio" name="M7_Winner" value="VGK"><div class="radio-label">Vegas 🎰</div></label>
                         </div>
-                    `;
-                }
-            });
-            document.getElementById('matchups-container').innerHTML = htmlToInject;
-        </script>
+                    </div>
+                    <div class="pick-section">
+                        <h4>Total Games:</h4>
+                        <div class="games-grid">
+                            <label><input type="radio" name="M7_Games" value="4" required><div class="radio-label">4</div></label>
+                            <label><input type="radio" name="M7_Games" value="5"><div class="radio-label">5</div></label>
+                            <label><input type="radio" name="M7_Games" value="6"><div class="radio-label">6</div></label>
+                            <label><input type="radio" name="M7_Games" value="7"><div class="radio-label">7</div></label>
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" id="submit-btn">Lock In Final Pick 🔒</button>
+            </div>
+        </form>
+
+        <div class="loading">Submitting your pick to the ice... 🧊</div>
+        
+        <div class="success-message" id="success-msg">
+            <h2>🚨 HE SCORES! 🚨</h2>
+            <p>Your ultimate pick is locked in.</p>
+            <button onclick="document.getElementById('success-msg').style.display='none'; loadLeaderboard();" style="padding: 12px 24px; margin-top: 10px; background: var(--primary); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%;">View Leaderboard</button>
+        </div>
 
     </div>
 
@@ -251,8 +285,9 @@
                     const answerKey = data[1]; 
                     const liveStatus = data[2]; 
 
-                    const colMap = [ [3,4], [5,6], [7,8], [9,10], [12,13], [14,15] ];
-                    const matchups = ["CAR/PHI", "COL/MIN", "ANA/VGK", "BUF/MTL", "CAR/MTL", "VGK/COL"];
+                    // Map all 7 Matchups to their specific Spreadsheet Columns
+                    const colMap = [ [3,4], [5,6], [7,8], [9,10], [12,13], [14,15], [16,17] ];
+                    const matchups = ["CAR/PHI", "COL/MIN", "ANA/VGK", "BUF/MTL", "CAR/MTL", "VGK/COL", "CAR/VGK"];
 
                     let players = data.slice(3).map(row => {
                         let r1Score = parseInt(row[11]) || 0; 
@@ -260,7 +295,7 @@
                         let pPotential = r1Score;
                         let playerPicks = [];
 
-                        for (let i = 0; i < 6; i++) {
+                        for (let i = 0; i < 7; i++) {
                             let wIdx = colMap[i][0]; 
                             let gIdx = colMap[i][1]; 
                             
@@ -326,7 +361,7 @@
                                     status: liveStatus[wIdx] || "",
                                     potW: potW,
                                     potG: potG,
-                                    round: i < 4 ? 2 : 3,
+                                    round: i < 4 ? 2 : (i < 6 ? 3 : 4),
                                     isSeriesOver: isSeriesOver,
                                     ansW: ansW,
                                     ansG: ansG
@@ -375,7 +410,8 @@
                         }
                     });
 
-                    let futurePointsAvailable = 3; 
+                    // THE SMART ELIMINATION ENGINE
+                    let futurePointsAvailable = 0; // Set to 0 because M7 is now actively tracked in the loop!
                     
                     let cutoffPlayer = null;
                     for (let i = players.length - 1; i >= 0; i--) {
@@ -391,12 +427,12 @@
                     
                     players.forEach((player, index) => {
                         
+                        let r4Picks = player.picks.filter(p => p.round === 4);
                         let r3Picks = player.picks.filter(p => p.round === 3);
                         let r2Picks = player.picks.filter(p => p.round === 2);
                         
                         let picksHtml = '';
 
-                        // Helper function to build the win/loss/pending visual for each pick
                         const buildPickVisual = (p) => {
                             let textW = "";
                             if (p.potW === 0) {
@@ -421,8 +457,14 @@
                             return `<div class="pick-item"><strong>${p.match}</strong>${statusHtml}<div>${text}</div></div>`;
                         };
                         
+                        if (r4Picks.length > 0) {
+                            picksHtml += `<div class="round-divider" style="color:#b8860b;">Stanley Cup Final</div><div class="picks-grid-summary">`;
+                            r4Picks.forEach(p => picksHtml += buildPickVisual(p));
+                            picksHtml += `</div>`;
+                        }
+
                         if (r3Picks.length > 0) {
-                            picksHtml += `<div class="round-divider">Round 3 Picks</div><div class="picks-grid-summary">`;
+                            picksHtml += `<div class="round-divider">Round 3 Archive</div><div class="picks-grid-summary">`;
                             r3Picks.forEach(p => picksHtml += buildPickVisual(p));
                             picksHtml += `</div>`;
                         }
@@ -442,7 +484,7 @@
                         let maxCatchUp = player.score; 
                         
                         if (player.payout === 0 && cutoffPlayer) {
-                            for (let i = 0; i < 6; i++) {
+                            for (let i = 0; i < 7; i++) {
                                 let pPick = player.picks[i];
                                 let cPick = cutoffPlayer.picks[i];
                                 
@@ -509,7 +551,7 @@
                                 </div>
                                 <div class="lb-score">
                                     <span class="score-actual">${player.score}</span>
-                                    <span class="score-potential">Max (Thru R3): ${player.potential}</span>
+                                    <span class="score-potential">Max Potential: ${player.potential}</span>
                                 </div>
                             </div>
                             <div class="lb-details" id="details-${index}">
@@ -530,6 +572,64 @@
                 console.error('Fetch Error:', error);
                 lbBody.innerHTML = '<div style="padding:40px; text-align:center; color:var(--accent); font-weight:800; font-size: 1.1rem;">🚨 Failed to connect to Google Sheets. Try again!</div>';
             });
+    }
+
+    const form = document.forms['submit-to-google-sheet'];
+    const loading = document.querySelector('.loading');
+    const successMsg = document.getElementById('success-msg');
+
+    if (form) {
+        form.addEventListener('submit', e => {
+            e.preventDefault();
+            if (!form.checkValidity()) { form.reportValidity(); return; }
+
+            const submittedAlias = form.elements['Alias'].value.trim().toLowerCase();
+            const existingPlayer = window.poolPlayers ? window.poolPlayers.find(p => p.alias.toLowerCase() === submittedAlias) : null;
+
+            if (existingPlayer) {
+                let alreadyPicked = false;
+                
+                // M7 (CAR/VGK) is index 6 in the picks array. 
+                if (existingPlayer.picks[6] && existingPlayer.picks[6].winner !== "") alreadyPicked = true;
+
+                if (alreadyPicked) {
+                    alert("🚨 Penalty on the play! It looks like you've already submitted a pick for the Stanley Cup Final. If you need an audible, please contact the Commish directly.");
+                    return;
+                }
+            }
+            
+            const submitButton = document.getElementById('submit-btn');
+            submitButton.disabled = true;
+            submitButton.innerText = "Checking with the refs...";
+            loading.style.display = 'block';
+
+            fetch(scriptURL, { method: 'POST', body: new FormData(form)})
+                .then(response => response.json())
+                .then(data => {
+                    loading.style.display = 'none';
+                    if (data.result === 'duplicate_error') {
+                        submitButton.disabled = false;
+                        submitButton.innerText = "Lock In Final Pick 🔒";
+                        alert("🚨 Penalty on the play! You already have picks on file for this matchup.");
+                        return;
+                    }
+                    if (data.result === 'unknown_alias_error') {
+                        submitButton.disabled = false;
+                        submitButton.innerText = "Lock In Final Pick 🔒";
+                        alert("🚨 Invalid Alias! We couldn't find that name in the system.");
+                        return;
+                    }
+                    form.style.display = 'none';
+                    successMsg.style.display = 'block';
+                    form.reset();
+                })
+                .catch(error => {
+                    submitButton.disabled = false;
+                    submitButton.innerText = "Lock In Final Pick 🔒";
+                    loading.style.display = 'none';
+                    alert("Something went wrong with the connection. Please try again!");
+                });
+        });
     }
 </script>
 
