@@ -94,7 +94,6 @@
         .won-pick { color: #1b5e20; font-weight: 900; background: #e8f5e9; padding: 2px 6px; border-radius: 6px; border: 1px solid #c8e6c9; display: inline-block; }
         .pending-pick { color: #333; font-weight: 700; }
         
-        /* FIX: Re-added loading and success message CSS to hide them correctly */
         .loading, .success-message { display: none; text-align: center; margin-top: 20px; }
         .success-message h2 { color: var(--secondary); font-size: 2rem; margin-bottom: 10px; }
 
@@ -305,13 +304,15 @@
                             
                             let userW = row[wIdx];
                             let userG = parseInt(row[gIdx]);
+                            
+                            // Check to see if series is officially marked as over in the answer key
                             let ansW = answerKey[wIdx];
                             let ansG = answerKey[gIdx];
+                            let isSeriesOver = (ansW && ansW !== "");
 
                             let sScore = 0;
                             let potW = 2; 
                             let potG = 1;
-                            let isSeriesOver = (ansW && ansW !== "");
 
                             if (!userW || userW === "") {
                                 if (isSeriesOver) {
@@ -414,9 +415,6 @@
                         }
                     });
 
-                    // THE SMART ELIMINATION ENGINE
-                    let futurePointsAvailable = 0; // Set to 0 because M7 is now actively tracked in the loop!
-                    
                     let cutoffPlayer = null;
                     for (let i = players.length - 1; i >= 0; i--) {
                         if (players[i].payout > 0) {
@@ -487,26 +485,35 @@
                         let isEliminated = false;
                         let maxCatchUp = player.score; 
                         
+                        // NEW FIX: Only add points for series that are explicitly NOT OVER
                         if (player.payout === 0 && cutoffPlayer) {
                             for (let i = 0; i < 7; i++) {
-                                let pPick = player.picks[i];
-                                let cPick = cutoffPlayer.picks[i];
+                                let matchIsOver = false;
+                                let ansW = answerKey[colMap[i][0]];
+                                if (ansW && ansW !== "") matchIsOver = true;
                                 
-                                if (pPick && cPick) {
-                                    let gainW = pPick.potW;
-                                    let gainG = pPick.potG;
-                                    
-                                    if (pPick.winner === cPick.winner && pPick.winner !== "") gainW = 0;
-                                    if (pPick.games === cPick.games && pPick.games !== 0) gainG = 0;
-                                    
-                                    maxCatchUp += (gainW + gainG);
-                                } else if (pPick) {
-                                    maxCatchUp += (pPick.potW + pPick.potG);
+                                // Safely locate picks for this specific matchup via .find()
+                                let pPick = player.picks.find(p => p.match === matchups[i]);
+                                let cPick = cutoffPlayer.picks.find(p => p.match === matchups[i]);
+                                
+                                if (!matchIsOver) {
+                                    if (pPick) {
+                                        let gainW = pPick.potW;
+                                        let gainG = pPick.potG;
+                                        
+                                        if (cPick) {
+                                            if (pPick.winner === cPick.winner && pPick.winner !== "") gainW = 0;
+                                            if (pPick.games === cPick.games && pPick.games !== 0) gainG = 0;
+                                        }
+                                        maxCatchUp += (gainW + gainG);
+                                    } else {
+                                        // They haven't picked yet, max theoretical gain against cutoff is 3
+                                        maxCatchUp += 3;
+                                    }
                                 }
                             }
-                            maxCatchUp += futurePointsAvailable;
+
                             player.maxCatchUp = maxCatchUp; 
-                            
                             if (maxCatchUp < cutoffPlayer.score) {
                                 isEliminated = true;
                             }
@@ -593,8 +600,9 @@
             if (existingPlayer) {
                 let alreadyPicked = false;
                 
-                // M7 (CAR/VGK) is index 6 in the picks array. 
-                if (existingPlayer.picks[6] && existingPlayer.picks[6].winner !== "") alreadyPicked = true;
+                // Use .find() here as well for safety
+                let m7Pick = existingPlayer.picks.find(p => p.match === "CAR/VGK");
+                if (m7Pick && m7Pick.winner !== "") alreadyPicked = true;
 
                 if (alreadyPicked) {
                     alert("🚨 Penalty on the play! It looks like you've already submitted a pick for the Stanley Cup Final. If you need an audible, please contact the Commish directly.");
